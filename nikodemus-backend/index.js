@@ -4,8 +4,16 @@ const port = 3000;
 const mysql = require('mysql2');
 
 //const des routes
-const formationRoute = require('./routes/formation');   
-const categoryRoute = require('./routes/category'); 
+const formationRoute = require('./routes/formation');
+const categoryRoute = require('./routes/category');
+
+// accepter cross origin 
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+    //res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    next();
+});
 
 
 //appel des routes

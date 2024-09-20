@@ -8,7 +8,7 @@ const config = require('../config'); // import de la connection a la bdd
 //  route page formation
 router.get('/', async (req, res) => {
     try {
-        const [rows, fields] = await config.query('SELECT Titre, presentation, image, prix  FROM FORMATION'); //table formation
+        const [rows, fields] = await config.query('SELECT id, Titre, presentation, image, prix FROM FORMATION'); //table formation
         res.json(rows);
     } catch (error) {
         console.error(error)
