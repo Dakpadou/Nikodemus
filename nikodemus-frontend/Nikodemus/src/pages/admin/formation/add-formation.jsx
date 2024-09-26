@@ -10,7 +10,7 @@ const AddFormation = () => {
     const [data, setData] = useState({
         titre: "",
         presentation: "",
-        image: null,
+        image: "",
         prix: ""
     });
 
@@ -29,6 +29,14 @@ const AddFormation = () => {
         formData.append("presentation", data.presentation);
         formData.append("image", data.image);
         formData.append("prix", data.prix);
+
+        axios.post("http://localhost:3000/formation/add", formData)
+            .then(res => {
+                console.log(res.data);
+            })
+            .catch(err => {
+                console.log(err);
+            });
     };
 
 
