@@ -6,7 +6,7 @@ import Home from './pages/Home'
 import Formation from './pages/formation'
 import { Routes, Route } from "react-router-dom";
 import AddFormationAdmin from './pages/admin/formation/add-formation'
-
+import FormationById from './pages/formation-by-id'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -21,6 +21,7 @@ function App() {
       <Route path="/formation" element={<Formation />} />
       <Route index element={<Home />} />
       <Route path="/admin/formation/add" element={<AddFormationAdmin />} />
+      <Route path="/formation/:id" element={<FormationById />} />
     </Routes>
     </div>
     </>

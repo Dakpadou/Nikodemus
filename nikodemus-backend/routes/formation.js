@@ -7,6 +7,7 @@ const bodyParser = require('body-parser'); //parser des data
 
 
 
+
 //  route page formation
 router.get('/', async (req, res) => {
     try {
@@ -14,11 +15,43 @@ router.get('/', async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error)
-        res.status(500).send('Erreur interne du serveur');
+        return res.status(500).send('Erreur interne du serveur');
 
     }
 }
 );
+
+
+// route page formation par id
+
+router.get('/:id', async (req, res) => {
+
+    const formationId = req.params.id;
+    const sql = 'SELECT id, Titre, presentation, prix FROM FORMATION WHERE id=?';
+
+    try {
+               const [rows, fields] = await config.query(sql, [formationId]); // execution de la requete sql
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message:'Formation non trouvée', success: false
+            });
+        }
+
+        return res.status(200).json({
+            data: rows[0], success: true
+        });
+        console.log(rows);
+
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send('Erreur interne du serveur');
+
+    }
+}
+);
+
 
 // route page ajout formation
 
@@ -74,7 +107,7 @@ router.delete('/delete/:id', async (req, res) => {
     try {
         const [result] = await config.execute(sql, [formationId]);
         console.log('Formation supprimée', result);
-        
+
         // gestion en cas d'item non trouvé
         if (result.affectedRows === 0) {
             return res.status(404).json({
@@ -99,6 +132,8 @@ router.delete('/delete/:id', async (req, res) => {
     };
 
 })
+
+
 
 
 

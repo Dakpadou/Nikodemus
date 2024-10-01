@@ -7,6 +7,8 @@ const mysql = require('mysql2');
 const formationRoute = require('./routes/formation');
 const categoryRoute = require('./routes/category');
 
+
+
 // accepter cross origin 
 
 app.use((req, res, next) => {
