@@ -131,7 +131,33 @@ router.delete('/delete/:id', async (req, res) => {
         });
     };
 
-})
+});
+
+// Route modifier les formations
+
+router.put('/update/:id', async (req, res) => {
+    const formationId = req.params.id;
+    const { titre, presentation, prix } = req.body;
+
+    const sql = 'UPDATE formation SET titre = ?, presentation = ?, prix = ? WHERE id = ?';
+
+    try {
+        const [result] = await config.execute(sql, [titre, presentation, prix, formationId]);
+        console.log('Formation màj avec succès', result);
+
+        return res.status(200).json({
+            message: 'Formation màj avec succès',
+            success: true,
+            data: { titre, presentation, prix }
+        });
+    } catch (err) {
+        console.error('Erreur lors de la màj', err);
+        return res.status(500).json({
+            message: 'Erreur interne du serveur',
+            success: false
+        });
+    }
+});
 
 
 

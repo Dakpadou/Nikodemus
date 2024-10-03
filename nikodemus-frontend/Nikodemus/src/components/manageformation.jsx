@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 const ManageFormation = () => {
     const [data, setData] = useState([]); // constante data (tableau vide)
+    const navigate = useNavigate(); // Hook pour naviguer entre les pages
+
     useEffect(() => {
         axios.get('http://localhost:3000/formation') // recuperation sur BDD
             .then(res => {
@@ -32,6 +35,14 @@ const ManageFormation = () => {
 
     };
 
+
+    // Fonction pour rediriger vers le formulaire d'édition
+
+ const handleEdit = (id) => {
+    navigate(`/update/${id}`); // Redirection vers la page d'édition avec l'ID
+};
+
+
     return (
         <>
             <div>
@@ -58,6 +69,9 @@ const ManageFormation = () => {
                                 <td>{formationdata.prix}</td>
                                 <td>
                                     <button onClick={() => handleDelete(formationdata.id)} >Supprimer</button>
+                                    <button onClick={() => handleEdit(formationdata.id)}>
+                                        Éditer
+                                    </button>
                                     </td>
                             </tr>
                              ))}
