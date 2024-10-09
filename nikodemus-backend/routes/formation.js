@@ -101,12 +101,22 @@ router.post('/add', async (req, res) => {
 
 router.delete('/delete/:id', async (req, res) => {
     const formationId = req.params.id;
+    const sql2 = 'DELETE FROM FORMACAT WHERE formation_id=?'
     const sql = 'DELETE FROM formation WHERE id = ?';
+    
 
     //exécution de la requete suppression avec promesse
     try {
+        
+        const [result2] = await config.execute(sql2, [formationId]);
+        console.log('Formation supprimée de la catégorie');
+
+        if (result2.affectedRows === 0) {
+            console.log ('La formation n\'a pas de catégorie');           
+        }
+        
         const [result] = await config.execute(sql, [formationId]);
-        console.log('Formation supprimée', result);
+        console.log('Formation supprimée');
 
         // gestion en cas d'item non trouvé
         if (result.affectedRows === 0) {

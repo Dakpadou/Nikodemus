@@ -6,6 +6,8 @@ const mysql = require('mysql2');
 //const des routes
 const formationRoute = require('./routes/formation');
 const categoryRoute = require('./routes/category');
+const loginRoute = require('./routes/login');
+
 
 
 
@@ -25,6 +27,9 @@ app.use((req, res, next) => {
 //appel des routes
 app.use('/formation', formationRoute);
 app.use('/category', categoryRoute);
+app.use('/login', loginRoute);
+
+
 
 
 

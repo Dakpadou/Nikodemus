@@ -8,6 +8,9 @@ import { Routes, Route } from "react-router-dom";
 import AddFormationAdmin from './pages/admin/formation/add-formation'
 import FormationById from './pages/formation-by-id'
 import UpdateFormation from './pages/admin/formation/update-formation'
+import Login from './pages/login'
+
+
 
 
 function App() {
@@ -19,6 +22,7 @@ function App() {
     <>
     <div className="App">
     < Routes>
+      <Route path="/login" element={<Login />} /> 
       <Route path="/" element={<Home />} /> 
       <Route path="/formation" element={<Formation />} />
       <Route index element={<Home />} />

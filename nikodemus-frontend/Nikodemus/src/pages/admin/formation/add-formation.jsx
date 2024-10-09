@@ -44,7 +44,7 @@ const AddFormation = () => {
 
     return (
         <>
-            <h1>ajout formation</h1>
+            <h2>ajout formation</h2>
             <form onSubmit={handleSubmit}>
                 <label>Titre</label>
                 <input type="text" name="titre" value={data.titre} onChange={handleChange} />
