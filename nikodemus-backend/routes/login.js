@@ -8,7 +8,7 @@ const config = require('../config'); // import de la connection a la bdd
 
 router.post('/', async (req, res) => {
     const { email , password } = req.body;
-
+    
     console.log(email , password);
     
     

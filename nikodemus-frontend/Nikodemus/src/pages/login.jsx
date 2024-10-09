@@ -22,14 +22,14 @@ const Login = () => {
             password,
         };
 //`${apiUrl}/login`
-        const response = axios.post(`http://localhost:3000/login`, data,
+        const response = axios.post(`http://localhost:3000/login/`, data,
             {
                 headers: {
                     "Content-Type": "application/json",
                 },
             }
         );
-        console.log(response.data);
+        console.log(data);
 
 
     }
