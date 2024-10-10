@@ -9,7 +9,7 @@ const categoryRoute = require('./routes/category');
 const loginRoute = require('./routes/login');
 
 // lire du json 
-//app.use(express.json());
+app.use(express.json());
 
 
 
