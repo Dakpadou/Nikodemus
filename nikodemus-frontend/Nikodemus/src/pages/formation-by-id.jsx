@@ -26,7 +26,9 @@ const FormationById = () => {
         <div>
             <article>
                 <h2>{formation.data.Titre}</h2>
-                <p><strong>Présentation:</strong> {formation.data.presentation}</p>
+                <div classname="content">
+                <div dangerouslySetInnerHTML={{ __html: formation.data.presentation }} />
+                 </div>
                 <p><strong>Prix:</strong> {formation.data.prix} €</p>
             </article>
         </div>

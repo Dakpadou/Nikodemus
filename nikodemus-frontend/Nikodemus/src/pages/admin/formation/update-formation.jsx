@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom'; 
 import axios from 'axios';
-
+import { Editor } from '@tinymce/tinymce-react';
 
 const UpdateFormation = () => {
   const { id } = useParams(); // Récupération de l'id dans l'url
@@ -11,9 +11,9 @@ const UpdateFormation = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true); // verification du chargement des données avant affichage
+  const TinyApi = import.meta.env.VITE_TINY_API_KEY; // import depuis .env de la clé api
 
-
-  // Charger les informations a partir de l'id formation
+  // Charger les informations a pa--rtir de l'id formation
   useEffect(() => {
     axios.get(`http://localhost:3000/formation/${id}`)
       .then(res => {
@@ -82,11 +82,38 @@ const UpdateFormation = () => {
         </div>
         <div>
           <label>Présentation</label>
-          <textarea
+          {/* <textarea
             value={presentation}
             onChange={(e) => setPresentation(e.target.value)}
             required
-          />
+          /> */}
+          <Editor
+                    apiKey={TinyApi}
+                    initialValue={presentation}
+                    onEditorChange={(content) => setPresentation(content)}
+                    init={{
+                        plugins: [
+                            // Core editing features
+                            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+                            // Your account includes a free trial of TinyMCE premium features
+                            // Try the most popular premium features until Nov 28, 2024:
+                            'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown',
+                            // Early access to document converters
+                            'importword', 'exportword', 'exportpdf'
+                        ],
+                        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                        tinycomments_mode: 'embedded',
+                        tinycomments_author: 'Author name',
+                        mergetags_list: [
+                            { value: 'First.Name', title: 'First Name' },
+                            { value: 'Email', title: 'Email' },
+                        ],
+                        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+                        exportpdf_converter_options: { 'format': 'Letter', 'margin_top': '1in', 'margin_right': '1in', 'margin_bottom': '1in', 'margin_left': '1in' },
+                        exportword_converter_options: { 'document': { 'size': 'Letter' } },
+                        importword_converter_options: { 'formatting': { 'styles': 'inline', 'resets': 'inline', 'defaults': 'inline', } },
+                    }}
+                />
         </div>
         <div>
           <label>Prix</label>

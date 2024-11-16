@@ -65,7 +65,7 @@ const ManageFormation = () => {
                             <tr key={formationdata.id}>
                                 <td>{formationdata.id}</td>
                                 <td>{formationdata.Titre}</td>
-                                <td>{formationdata.presentation}</td>
+                                
                                 <td>{formationdata.prix}</td>
                                 <td>
                                     <button onClick={() => handleDelete(formationdata.id)} >Supprimer</button>
