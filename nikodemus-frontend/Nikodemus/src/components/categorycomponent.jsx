@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const category = () => {
+const Category = () => {
     const [data, setData] = useState([]); // constante data (tableau vide)
     useEffect(() => {
         axios.get('http://localhost:3000/category') // recuperation sur BDD
@@ -18,7 +18,6 @@ const category = () => {
 return (
     <>
         <div>
-            coucou
         {data.map((categorydata) => (
             <article key={categorydata.id}>
             <p> {categorydata.Titre}</p>

@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Home from './pages/Home'
 import Formation from './pages/formation'
+import Category from './pages/category'
 import { Routes, Route } from "react-router-dom";
 import AddFormationAdmin from './pages/admin/formation/add-formation'
 import FormationById from './pages/formation-by-id'
@@ -25,6 +26,7 @@ function App() {
       <Route path="/login" element={<Login />} /> 
       <Route path="/" element={<Home />} /> 
       <Route path="/formation" element={<Formation />} />
+      <Route path="/category" element={<Category />} />
       <Route index element={<Home />} />
       <Route path="/admin/formation/add" element={<AddFormationAdmin />} />
       <Route path="/formation/:id" element={<FormationById />} />

@@ -18,8 +18,7 @@ const Formation = () => {
 return (
     <>
         <div>
-            coucou
-        {data.map((formationdata) => (
+                    {data.map((formationdata) => (
             <article key={formationdata.id}>
             <p> {formationdata.Titre}</p>
             <p> {formationdata.presentation}</p>
