@@ -119,6 +119,52 @@ router.put('/update/:id', async (req, res) => {
     }
 });
 
+// route supprimer une catégorie
+
+router.delete('/delete/:id', async (req, res) => {
+    const categoryId = req.params.id;
+    const sql2 = 'DELETE FROM FORMACAT WHERE category_id=?'
+    const sql = 'DELETE FROM category WHERE id = ?';
+    
+
+    //exécution de la requete suppression avec promesse
+    try {
+        
+        const [result2] = await config.execute(sql2, [categoryId]);
+        console.log('Catégorie supprimée pour les formations');
+
+        if (result2.affectedRows === 0) {
+            console.log ('La catégorie n\'a pas de formation');           
+        }
+        
+        const [result] = await config.execute(sql, [formationId]);
+        console.log('catégorie supprimée');
+
+        // gestion en cas d'item non trouvé
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                message: 'catégorie non trouvée',
+                success: false
+            });
+        }
+        // réponse 201 avec statut succès
+        return res.status(201).json({
+            message: 'Formation supprimée',
+            success: true
+        });
+    }
+    catch (err) {
+
+        // log d'erreur et réponse avec statut
+        console.error('Erreur a la suppression', err);
+        return res.status(500).json({
+            message: 'Erreur interne serveur',
+            success: false
+        });
+    };
+
+});
+
 
 module.exports = router;
 
