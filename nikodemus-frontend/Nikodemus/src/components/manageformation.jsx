@@ -24,8 +24,8 @@ const ManageFormation = () => {
         console.log(id);
 
         axios.delete(`http://localhost:3000/formation/delete/${id}`)
-    
-        
+
+
             .then(res => {
                 console.log(res.data);
             })
@@ -38,48 +38,47 @@ const ManageFormation = () => {
 
     // Fonction pour rediriger vers le formulaire d'édition
 
- const handleEdit = (id) => {
-    navigate(`/update/${id}`); // Redirection vers la page d'édition avec l'ID
-};
+    const handleEdit = (id) => {
+        navigate(`/update/${id}`); // Redirection vers la page d'édition avec l'ID
+    };
 
 
     return (
         <>
             <div>
                 <h2>Liste des formations</h2>
-                
-                    <table>
-                        <thead>
-                            <tr>
+
+                <table>
+                    <thead>
+                        <tr>
                             <th>ID</th>
                             <th>Titre</th>
-                            <th>Présentation</th>
                             <th>Prix</th>
                             <th>Actions</th>
-                            </tr>
-                        </thead>
-                        
-                    
-                        <tbody>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
                         {data.map((formationdata) => (
                             <tr key={formationdata.id}>
                                 <td>{formationdata.id}</td>
                                 <td>{formationdata.Titre}</td>
-                                
+
                                 <td>{formationdata.prix}</td>
                                 <td>
                                     <button onClick={() => handleDelete(formationdata.id)} >Supprimer</button>
                                     <button onClick={() => handleEdit(formationdata.id)}>
                                         Éditer
                                     </button>
-                                    </td>
+                                </td>
                             </tr>
-                             ))}
+                        ))}
 
-                        </tbody>
+                    </tbody>
 
-                    </table>
-               
+                </table>
+
             </div>
         </>
     )

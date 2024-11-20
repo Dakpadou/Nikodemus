@@ -15,7 +15,7 @@ const ManageCategory = () => {
             .catch(err => {         // gestion d'erreur
                 console.log(err, 'Erreur lors de la récupération des données');
             });
-    }, []); // fin du useEffect, le tableau vide représente des param optionnels
+    }, []); // le tableau vide représente des param optionnels
 
 
     // Fonction pour supprimer 1 catégorie
@@ -24,8 +24,8 @@ const ManageCategory = () => {
         console.log(id);
 
         axios.delete(`http://localhost:3000/category/delete/${id}`)
-    
-        
+
+
             .then(res => {
                 console.log(res.data);
             })
@@ -38,48 +38,43 @@ const ManageCategory = () => {
 
     // Fonction pour rediriger vers le formulaire d'édition
 
- const handleEdit = (id) => {
-    navigate(`/update/${id}`); // Redirection vers la page d'édition avec l'ID
-};
+    const handleEdit = (id) => {
+        navigate(`/update/${id}`); // Redirection vers la page d'édition avec l'ID
+    };
 
 
     return (
         <>
             <div>
-                <h2>Liste des formations</h2>
-                
-                    <table>
-                        <thead>
-                            <tr>
+                <h2>Liste des catégories</h2>
+
+                <table>
+                    <thead>
+                        <tr>
                             <th>ID</th>
-                            <th>Titre</th>
+                            <th>Nom</th>
                             <th>Présentation</th>
-                            <th>Prix</th>
                             <th>Actions</th>
-                            </tr>
-                        </thead>
-                        
-                    
-                        <tbody>
-                        {data.map((formationdata) => (
-                            <tr key={formationdata.id}>
-                                <td>{formationdata.id}</td>
-                                <td>{formationdata.Titre}</td>
-                                
-                                <td>{formationdata.prix}</td>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+                        {data.map((categorydata) => (
+                            <tr key={category.id}>
+                                <td>{category.id}</td>
+                                <td>{category.name}</td>
+                                <td>{category.presentation}</td>                          
                                 <td>
-                                    <button onClick={() => handleDelete(formationdata.id)} >Supprimer</button>
-                                    <button onClick={() => handleEdit(formationdata.id)}>
-                                        Éditer
-                                    </button>
-                                    </td>
+                                    <button onClick={() => handleDelete(category.id)} >Supprimer</button>
+                                    <button onClick={() => handleEdit(category.id)}>Éditer</button>
+                                </td>
                             </tr>
-                             ))}
+                        ))}
+                    </tbody>
 
-                        </tbody>
+                </table>
 
-                    </table>
-               
             </div>
         </>
     )

@@ -2,7 +2,7 @@ const mysql = require('mysql2');
 
 
 // connexion à la bdd
-const connection = mysql.createConnection({
+const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'root',

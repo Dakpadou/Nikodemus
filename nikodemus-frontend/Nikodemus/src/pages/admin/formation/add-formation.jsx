@@ -35,7 +35,7 @@ const AddFormation = () => {
         e.preventDefault();
 
 
-        axios.post("http://localhost:3000/formation/add", data, {
+        axios.post("http://localhost:3000/formation/add2", data, {
             headers: {
                 "Content-Type": "application/json"
             }

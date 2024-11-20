@@ -137,7 +137,7 @@ router.delete('/delete/:id', async (req, res) => {
             console.log ('La catégorie n\'a pas de formation');           
         }
         
-        const [result] = await config.execute(sql, [formationId]);
+        const [result] = await config.execute(sql, [categoryId]);
         console.log('catégorie supprimée');
 
         // gestion en cas d'item non trouvé
@@ -149,7 +149,7 @@ router.delete('/delete/:id', async (req, res) => {
         }
         // réponse 201 avec statut succès
         return res.status(201).json({
-            message: 'Formation supprimée',
+            message: 'catégorie supprimée',
             success: true
         });
     }
