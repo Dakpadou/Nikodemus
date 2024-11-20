@@ -81,53 +81,11 @@ router.get('/incategory/:id', async (req, res) => {
 
 
 
+
+
 // route page ajout formation
 
-router.use(bodyParser.json());
-
 router.post('/add', async (req, res) => {
-    const { titre, presentation, prix } = req.body;
-    const sql = 'INSERT INTO formation (titre, presentation, prix) VALUES (?, ?, ?)';
-  
-
-    if (Object.keys(req.body).length !== 0) {
-        console.log('Données reçues:', req.body);
-
-        try {
-            // Exécution de la requête avec une promesse
-            const [result] = await config.execute(sql, [titre, presentation, prix]);
-
-            // Log après succès de l'insertion
-            console.log('Formation ajoutée avec succès:', result);
-
-            // Réponse statut 201 après succès de l'insertion
-            return res.status(201).json({
-                message: 'Formation ajoutée avec succès',
-                success: true,
-                data: { titre, presentation, prix }
-            });
-
-        } catch (err) {
-            // Log de l'erreur en cas de problème avec la requête
-            console.error('Erreur lors de l\'insertion:', err);
-            return res.status(500).json({
-                message: 'Erreur interne du serveur',
-                success: false
-            });
-        }
-
-    } else {
-        // Si les données sont manquantes
-        return res.status(400).json({
-            message: 'Données manquantes',
-            success: false
-        });
-    }
-});
-
-// add test
-
-router.post('/add2', async (req, res) => {
     const { titre, presentation, prix } = req.body; 
     const sqlFormation = 'INSERT INTO formation (titre, presentation, prix) VALUES (?, ?, ?)';
     const sqlFormacat = 'INSERT INTO formacat (formation_id) VALUES (?)';
