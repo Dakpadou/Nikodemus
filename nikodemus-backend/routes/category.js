@@ -20,6 +20,21 @@ router.get('/', async (req, res) => {
 }
 );
 
+// Route  récupérer les catégories (id + name uniquement)
+router.get('/shortcategory', async (req, res) => {
+    const sql = 'SELECT id, name FROM CATEGORY';
+
+    try {
+        const [result] = await config.execute(sql);
+        return res.status(200).json(result);
+    } catch (err) {
+        console.error("Erreur lors de la récupération des catégories :", err);
+        return res.status(500).json({ message: "Erreur interne du serveur" });
+    }
+});
+
+
+
 // route page category par id
 
 router.get('/:id', async (req, res) => {

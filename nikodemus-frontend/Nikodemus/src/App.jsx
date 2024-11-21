@@ -4,11 +4,13 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Home from './pages/Home'
 import Formation from './pages/formation'
-import Category from './pages/category'
+import Categories from './pages/category'
+import FormationsParCategorie from './pages/formation-in-category'
 import { Routes, Route } from "react-router-dom";
 import AddFormationAdmin from './pages/admin/formation/add-formation'
 import FormationById from './pages/formation-by-id'
 import UpdateFormation from './pages/admin/formation/update-formation'
+
 import Login from './pages/login'
 
 
@@ -23,11 +25,12 @@ function App() {
     <>
     <div className="App">
     < Routes>
-      <Route path="/login" element={<Login />} /> 
+      <Route index element={<Home />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/" element={<Home />} /> 
       <Route path="/formation" element={<Formation />} />
-      <Route path="/category" element={<Category />} />
-      <Route index element={<Home />} />
+      <Route path="/category" element={<Categories />} />
+      <Route path="/formations-par-categorie" element={<FormationsParCategorie />} />
       <Route path="/admin/formation/add" element={<AddFormationAdmin />} />
       <Route path="/formation/:id" element={<FormationById />} />
       <Route path="/update/:id" element={<UpdateFormation />} />

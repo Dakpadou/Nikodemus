@@ -52,29 +52,31 @@ router.get('/:id', async (req, res) => {
 }
 );
 
-// route page afficher formation par catégorie
+// route page afficher formation dans leur catégorie
 
-router.get('/incategory/:id', async (req, res) => {
-    
-    const categoryId = req.params.id;
-    const sql = 'SELECT FORMATION.id, titre, presentation, prix, image FROM formation JOIN FORMACAT ON FORMACAT.formation_id = FORMATION.id WHERE formacat.category_id = ?';
+router.get('/formation/incategory', async (req, res) => {
+    const sql = `
+        SELECT 
+            FORMATION.id, 
+            FORMATION.titre, 
+            FORMATION.prix, 
+            FORMATION.image, 
+            CATEGORY.name AS category_name,
+            CATEGORY.id AS category_id
+        FROM 
+            FORMATION
+        JOIN 
+            FORMACAT ON FORMACAT.formation_id = FORMATION.id
+        JOIN 
+            CATEGORY ON CATEGORY.id = FORMACAT.category_id
+    `;
 
     try {
-        const [rows, fields] = await config.query(sql, [categoryId]);
-
-        if (rows.length === 0) {
-            return res.status(404).json({
-                message: 'Aucune formation trouvée pour cette catégorie', success: false
-            });
-        }
-
-        return res.status(200).json({
-            data: rows, success: true
-        });
-    
-    } catch (error) {
-        console.error(error)
-        return res.status(500).send('Erreur interne du serveur');
+        const [result] = await config.execute(sql);
+        return res.status(200).json(result);
+    } catch (err) {
+        console.error("Erreur lors de la récupération des formations :", err);
+        return res.status(500).json({ message: "Erreur interne du serveur" });
     }
 });
 

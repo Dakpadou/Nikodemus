@@ -8,9 +8,8 @@ const FormationPage = () => {
 
 return (
     <>
-        <h1>Page Formation</h1>
+        <h1>Toutes les formations</h1>
         <FormationComponent />
-       
     </>
 )
 };
