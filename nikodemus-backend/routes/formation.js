@@ -52,48 +52,35 @@ router.get('/:id', async (req, res) => {
 }
 );
 
-// route page afficher formation dans leur catégorie
 
-router.get('/formation/incategory', async (req, res) => {
-    const sql = `
-        SELECT 
-            FORMATION.id, 
-            FORMATION.titre, 
-            FORMATION.prix, 
-            FORMATION.image, 
-            CATEGORY.name AS category_name,
-            CATEGORY.id AS category_id
-        FROM 
-            FORMATION
-        JOIN 
-            FORMACAT ON FORMACAT.formation_id = FORMATION.id
-        JOIN 
-            CATEGORY ON CATEGORY.id = FORMACAT.category_id
-    `;
+// route page afficher formation dans leur catégorie
+router.get('/incategory/:id', async (req, res) => {
+    const categoryId = req.params.id;  
+    const sql = `SELECT f.id, f.Titre, f.presentation, f.prix, c.name as category_name
+                 FROM FORMATION f
+                JOIN formacat fc ON f.id = fc.formation_id
+                JOIN CATEGORY c ON fc.category_id = c.id
+                WHERE c.id = ?`;
 
     try {
-        const [result] = await config.execute(sql);
-        return res.status(200).json(result);
-    } catch (err) {
-        console.error("Erreur lors de la récupération des formations :", err);
-        return res.status(500).json({ message: "Erreur interne du serveur" });
+        const [rows, fields] = await config.query(sql, [categoryId]);
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send('Erreur interne du serveur');
     }
 });
-
-
-
-
 
 
 // route page ajout formation
 
 router.post('/add', async (req, res) => {
-    const { titre, presentation, prix } = req.body; 
+    const { titre, presentation, prix } = req.body;
     const sqlFormation = 'INSERT INTO formation (titre, presentation, prix) VALUES (?, ?, ?)';
     const sqlFormacat = 'INSERT INTO formacat (formation_id) VALUES (?)';
 
     // Vérifie que les données nécessaires sont présentes
-    if (!titre || !presentation || !prix ) {
+    if (!titre || !presentation || !prix) {
         return res.status(400).json({
             message: 'Données manquantes (titre, présentation, prix)',
             success: false,
@@ -123,17 +110,16 @@ router.post('/add', async (req, res) => {
                 titre,
                 presentation,
                 prix,
-                
+
             },
         });
     } catch (err) {
         console.error('Erreur lors de l\'insertion:', err);
 
-        // // Annule la transaction en cas d'erreur
-        // if (connection) {
-        //     await connection.rollback();
-        //     connection.release();
-        // }
+        if (connection) {
+            await connection.rollback();
+            connection.release();
+        }
 
         return res.status(500).json({
             message: 'Erreur interne du serveur',
