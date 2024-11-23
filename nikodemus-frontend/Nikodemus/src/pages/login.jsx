@@ -23,7 +23,7 @@ const Login = () => {
                 withCredentials: true, // envoi du cookie de session
             });
             console.log(response.data);
-            setMessage("Connexion réussie !"); // Message de succès
+            setMessage("Connexion réussie !"); 
         } catch (error) {
             // Gérer les erreurs ici
             console.error('Erreur lors de la connexion:', error);
