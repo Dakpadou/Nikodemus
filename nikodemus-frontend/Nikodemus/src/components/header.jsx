@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Home from "../pages/Home";
-import Formation from "../pages/Formation";
+
 
 
 
@@ -27,7 +27,10 @@ const Header = () => {
           <li> Administrateur
             <ul>
               <li>
-            <Link to="/admin/formation/add">Admin</Link>
+            <Link to="/admin/formation/add">Créer une formation</Link>
+            </li>
+            <li>
+            <Link to="/admin/category">Gérer les catégories</Link>
             </li>
             </ul>
           </li>

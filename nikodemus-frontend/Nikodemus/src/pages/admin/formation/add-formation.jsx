@@ -1,104 +1,173 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import ManageFormation from "../../../components/manageformation";
-import { Editor } from '@tinymce/tinymce-react';
-
-
-
-
+import { Form, Button, Container, Row, Col, Card, Alert } from "react-bootstrap";
+import { Editor } from "@tinymce/tinymce-react";
 
 const AddFormation = () => {
     const [data, setData] = useState({
         titre: "",
         presentation: "",
-        prix: ""
+        content: "", // pour TinyMCE
+        prix: "",
+        image: null
     });
+    const [success, setSuccess] = useState(false);
+    const [error, setError] = useState("");
 
-    const handleEditorChange = (content) => {
+    // Fonction pour gérer les changements dans l'éditeur TinyMCE (contenu)
+    const handleEditorChange = (content, editor) => {
         setData({
             ...data,
-            presentation: content
+            content: content // Mettre à jour "content" pour TinyMCE
         });
     };
 
-
+    // Fonction pour gérer les changements dans les autres champs (présentation, prix, etc.)
     const handleChange = (e) => {
-        const value = e.target.value;
+        const { name, value } = e.target;
         setData({
             ...data,
-            [e.target.name]: value
+            [name]: value // Mettre à jour le champ texte classique
+        });
+    };
+
+    // Fonction pour gérer le changement de l'image
+    const handleImageChange = (e) => {
+        setData({
+            ...data,
+            image: e.target.files[0] // Mettre à jour l'image
         });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        const formData = new FormData();
+        formData.append("titre", data.titre);
+        formData.append("presentation", data.presentation);  // Champ texte classique
+        formData.append("content", data.content); // Contenu de TinyMCE
+        formData.append("prix", data.prix);
+        formData.append("image", data.image); // Ajout de l'image
 
-        axios.post("http://localhost:3000/formation/add", data, {
+        // Envoi de la requête POST avec les données du formulaire
+        axios.post("http://localhost:3000/formation/add", formData, {
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "multipart/form-data"
             }
         })
-            .then(res => {
-                console.log(res.data);
-            })
-            .catch(err => {
-                console.log(err);
+        .then((res) => {
+            setSuccess(true);
+            setError("");
+            setData({
+                titre: "",
+                presentation: "",
+                content: "", // Réinitialisation du contenu TinyMCE
+                prix: "",
+                image: null
             });
+        })
+        .catch((err) => {
+            setError("Une erreur est survenue lors de l'ajout de la formation.");
+        });
     };
 
-    const TinyApi = import.meta.env.VITE_TINY_API_KEY;
-
-
     return (
-        <>
-            <h2>ajout formation</h2>
-            <form onSubmit={handleSubmit}>
-                <label>Titre</label>
-                <input type="text" name="titre" value={data.titre} onChange={handleChange} />
-                <label>Presentation</label>
-                {/* <input type="text" name="presentation" value={data.presentation} onChange={handleChange} /> */}
-                <Editor
-                    apiKey={TinyApi}
-                    value={data.presentation}
-                    onEditorChange={handleEditorChange}
-                    init={{
-                        plugins: [
-                            // Core editing features
-                            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
-                            // Your account includes a free trial of TinyMCE premium features
-                            // Try the most popular premium features until Nov 28, 2024:
-                            'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown',
-                            // Early access to document converters
-                            'importword', 'exportword', 'exportpdf'
-                        ],
-                        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-                        tinycomments_mode: 'embedded',
-                        tinycomments_author: 'Author name',
-                        mergetags_list: [
-                            { value: 'First.Name', title: 'First Name' },
-                            { value: 'Email', title: 'Email' },
-                        ],
-                        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
-                        exportpdf_converter_options: { 'format': 'Letter', 'margin_top': '1in', 'margin_right': '1in', 'margin_bottom': '1in', 'margin_left': '1in' },
-                        exportword_converter_options: { 'document': { 'size': 'Letter' } },
-                        importword_converter_options: { 'formatting': { 'styles': 'inline', 'resets': 'inline', 'defaults': 'inline', } },
-                    }}
-                    initialValue="Welcome to TinyMCE!"
-                />
+        <Container className="mt-5">
+            <Row className="justify-content-center">
+                <Col md={8}>
+                    <Card>
+                        <Card.Header as="h3" className="text-center">Ajout de Formation</Card.Header>
+                        <Card.Body>
+                            {success && (
+                                <Alert variant="success" onClose={() => setSuccess(false)} dismissible>
+                                    Formation ajoutée avec succès !
+                                </Alert>
+                            )}
+                            {error && (
+                                <Alert variant="danger" onClose={() => setError("")} dismissible>
+                                    {error}
+                                </Alert>
+                            )}
+                            <Form onSubmit={handleSubmit}>
+                                <Form.Group controlId="titre" className="mb-3">
+                                    <Form.Label>Titre</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Entrez le titre"
+                                        name="titre"
+                                        value={data.titre}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </Form.Group>
 
-                <label>Prix</label>
-                <input type="text" name="prix" value={data.prix} onChange={handleChange} />
-                <button type="submit">Ajouter</button>
+                                <Form.Group controlId="presentation" className="mb-3">
+                                    <Form.Label>Présentation</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={4}
+                                        placeholder="Entrez une présentation"
+                                        name="presentation"
+                                        value={data.presentation}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </Form.Group>
 
-            </form>
+                                <Form.Group controlId="content" className="mb-3">
+                                    <Form.Label>Contenu</Form.Label>
+                                    <Editor
+                                        apiKey="6wyjw88f7551uupx6wqkslqmss5ll5qvudm9ue1acl21w4qw"
+                                        value={data.content} // Utilisation de "content" pour TinyMCE
+                                        onEditorChange={handleEditorChange}
+                                        init={{
+                                            height: 500,
+                                            menubar: false,
+                                            plugins: [
+                                                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                                                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                                'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                                            ],
+                                            toolbar: 'undo redo | blocks | ' +
+                                                'bold italic forecolor | alignleft aligncenter ' +
+                                                'alignright alignjustify | bullist numlist outdent indent | ' +
+                                                'removeformat | help',
+                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                        }}
+                                    />
+                                </Form.Group>
 
-            <ManageFormation />
+                                <Form.Group controlId="prix" className="mb-3">
+                                    <Form.Label>Prix</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Entrez le prix"
+                                        name="prix"
+                                        value={data.prix}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </Form.Group>
 
+                                <Form.Group controlId="image" className="mb-3">
+                                    <Form.Label>Image</Form.Label>
+                                    <Form.Control
+                                        type="file"
+                                        name="image"
+                                        onChange={handleImageChange}
+                                    />
+                                </Form.Group>
 
-        </>
-    )
+                                <Button variant="primary" type="submit" className="w-100">
+                                    Ajouter la Formation
+                                </Button>
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+        </Container>
+    );
 };
 
 export default AddFormation;

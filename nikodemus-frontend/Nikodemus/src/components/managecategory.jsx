@@ -21,6 +21,8 @@ const CategoryManager = () => {
     try {
       const response = await axios.get("http://localhost:3000/category");
       setCategories(response.data);
+      console.log(response.data);
+      
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
@@ -46,22 +48,31 @@ const CategoryManager = () => {
   };
 
   const handleEditCategory = (category) => {
-    setEditingCategory(category);
+    setEditingCategory({ ...category });
     setShowModal(true);
   };
 
   const handleUpdateCategory = async () => {
     try {
-      await axios.put(`http://localhost:3000/category/update/${editingCategory.id}`, editingCategory);
-      fetchCategories();
-      console.log(Categories);
-      
-      setShowModal(false);
-      setEditingCategory(null);
+      if (!editingCategory?.id) {
+        console.error("Category ID is missing"); // Log si l'ID est absent
+        return;
+      }
+  
+      await axios.put(`/api/categories/${editingCategory.id}`, {
+        name: editingCategory.name,
+        presentation: editingCategory.presentation,
+        image: editingCategory.image,
+      });
+  
+      fetchCategories(); // màj  liste catégories
+      setShowModal(false); 
+      setEditingCategory(null); 
     } catch (error) {
       console.error("Error updating category:", error);
     }
   };
+  
 
   return (
     <div> 
@@ -125,6 +136,7 @@ const CategoryManager = () => {
       {showModal && (
         <div className="modal">
           <h2>Edit Category</h2>
+          <label>Nom:</label>
           <input
             type="text"
             placeholder="Name"
@@ -133,6 +145,7 @@ const CategoryManager = () => {
               setEditingCategory({ ...editingCategory, name: e.target.value })
             }
           />
+          <label>Présentation:</label>
           <input
             type="text"
             placeholder="Presentation"
@@ -144,6 +157,7 @@ const CategoryManager = () => {
               })
             }
           />
+          <label>URL de l'image:</label>
           <input
             type="text"
             placeholder="Image URL"

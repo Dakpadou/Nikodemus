@@ -9,7 +9,7 @@ const bodyParser = require('body-parser'); //parser des data
 //  route page toutes categories
 router.get('/', async (req, res) => {
     try {
-        const [rows, fields] = await config.query('SELECT name, presentation, image  FROM CATEGORY'); //table category
+        const [rows, fields] = await config.query('SELECT id, name, presentation, image  FROM CATEGORY'); //table category
         res.json(rows);
     }
     catch (error) {
@@ -110,27 +110,31 @@ router.post('/add', async (req, res) => {
 
 // Route modifier les categories
 
-router.put('/update/:id', async (req, res) => {
-    const categoryId = req.params.id;
-    const { name, presentation } = req.body;
+router.put('update/:id', async (req, res) => {
+    const id = req.params.id; 
+    const { name, presentation, image } = req.body; 
 
-    const sql = 'UPDATE category SET name = ?, presentation = ? WHERE id = ?';
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: "Valid category ID is required" });
+    }
+
+    if (!name || !presentation || !image) {
+        return res.status(400).json({ error: "All fields (name, presentation, image) are required" });
+    }
 
     try {
-        const [result] = await config.execute(sql, [name, presentation, categoryId]);
-        console.log('categorie màj avec succès', result);
+        const query = `UPDATE CATEGORY SET name = ?, presentation = ?, image = ? WHERE id = ?`;
+        const values = [name, presentation, image, id];
+        const [result] = await config.query(query, values);
 
-        return res.status(200).json({
-            message: 'categorie màj avec succès',
-            success: true,
-            data: { name, presentation }
-        });
-    } catch (err) {
-        console.error('Erreur lors de la màj', err);
-        return res.status(500).json({
-            message: 'Erreur interne du serveur',
-            success: false
-        });
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Category not found" });
+        }
+
+        res.json({ message: "Category updated successfully" });
+    } catch (error) {
+        console.error("Error updating category:", error);
+        res.status(500).json({ error: "Error updating category" });
     }
 });
 

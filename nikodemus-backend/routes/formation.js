@@ -59,7 +59,7 @@ router.get('/:id', async (req, res) => {
 // route page afficher formation dans leur catégorie
 router.get('/incategory/:id', async (req, res) => {
     const categoryId = req.params.id;  
-    const sql = `SELECT f.id, f.Titre, f.presentation, f.prix, c.name as category_name
+    const sql = `SELECT f.id, f.Titre, f.presentation, f.image, f.prix, c.name as category_name
                  FROM FORMATION f
                 JOIN formacat fc ON f.id = fc.formation_id
                 JOIN CATEGORY c ON fc.category_id = c.id
@@ -108,7 +108,8 @@ const upload = multer({
 
 router.post('/add', upload.single('image'), async (req, res) => {
     const { titre, presentation, prix } = req.body;
-    const sql = 'INSERT INTO formation (titre, presentation, prix, image) VALUES (?, ?, ?, ?)';
+    const sqlFormation = 'INSERT INTO formation (titre, presentation, prix, image) VALUES (?, ?, ?, ?)';
+    const sqlFormacat = 'INSERT INTO formacat (formation_id, category_id) VALUES (?, ?)';
 
     try {
         // Vérifie si un fichier est présent et récupère son nom avec extension
@@ -130,15 +131,22 @@ router.post('/add', upload.single('image'), async (req, res) => {
             .resize(800, 600, { fit: 'cover' }) // Taille : 800x600 pixels
             .toFile(resizedPath); // Sauvegarde de l'image redimensionnée
 
-        // Insère les données dans la base avec le nom du fichier redimensionné
+        // Insère les données dans la table formation
         const image = `resized-${originalFile}`;
-        const [result] = await config.execute(sql, [titre, presentation, prix, image]);
+        const [resultFormation] = await config.execute(sqlFormation, [titre, presentation, prix, image]);
+
+        // Récupère l'ID de la formation insérée
+        const formationId = resultFormation.insertId;
+
+        // Insère les données dans la table formacat
+        const categoryId = 1; // Catégorie par défaut
+        await config.execute(sqlFormacat, [formationId, categoryId]);
 
         // Réponse de succès
         return res.status(201).json({
             message: 'Formation ajoutée avec succès avec image redimensionnée',
             success: true,
-            data: { titre, presentation, prix, image }
+            data: { titre, presentation, prix, image, formationId, categoryId }
         });
     } catch (err) {
         console.error('Erreur lors de l\'insertion:', err);
@@ -150,6 +158,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
         });
     }
 });
+
 
 // route delete pour formation
 
