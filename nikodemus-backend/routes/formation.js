@@ -4,6 +4,9 @@ const mysql = require('mysql2');
 const router = express.Router();
 const config = require('../config'); // import de la connection a la bdd
 const bodyParser = require('body-parser'); //parser des data
+const multer = require('multer');
+const path = require('path');
+const sharp = require('sharp');
 
 
 
@@ -71,59 +74,79 @@ router.get('/incategory/:id', async (req, res) => {
     }
 });
 
+// gestion de l'ajout d'images aux formations
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = path.resolve(__dirname, '../uploads'); // Dossier de destination
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname).toLowerCase(); // Récupère l'extension
+        cb(null, `${uniqueSuffix}${ext}`);
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // Taille max 5 Mo
+    fileFilter: (req, file, cb) => {
+        const fileTypes = /jpeg|jpg|png|gif/; // Types autorisés
+        const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimeType = fileTypes.test(file.mimetype);
+
+        if (extname && mimeType) {
+            return cb(null, true); // Fichier autorisé
+        } else {
+            cb(new Error('Format de fichier non autorisé')); // Fichier rejeté
+        }
+    }
+});
+
 
 // route page ajout formation
 
-router.post('/add', async (req, res) => {
+router.post('/add', upload.single('image'), async (req, res) => {
     const { titre, presentation, prix } = req.body;
-    const sqlFormation = 'INSERT INTO formation (titre, presentation, prix) VALUES (?, ?, ?)';
-    const sqlFormacat = 'INSERT INTO formacat (formation_id) VALUES (?)';
-
-    // Vérifie que les données nécessaires sont présentes
-    if (!titre || !presentation || !prix) {
-        return res.status(400).json({
-            message: 'Données manquantes (titre, présentation, prix)',
-            success: false,
-        });
-    }
+    const sql = 'INSERT INTO formation (titre, presentation, prix, image) VALUES (?, ?, ?, ?)';
 
     try {
-        // Utilisation d'une transaction
-        const connection = await config.getConnection();
-        await connection.beginTransaction();
+        // Vérifie si un fichier est présent et récupère son nom avec extension
+        const originalFile = req.file ? req.file.filename : null;
 
-        // Insère la formation dans la table `formation`
-        const [formationResult] = await connection.execute(sqlFormation, [titre, presentation, prix]);
-        const formationId = formationResult.insertId; // Récupère l'ID de la formation ajoutée
+        if (!originalFile) {
+            return res.status(400).json({
+                message: 'Aucune image fournie',
+                success: false
+            });
+        }
 
-        // Insère dans la table de jointure `formacat`
-        await connection.execute(sqlFormacat, [formationId]);
+        const uploadPath = path.resolve(__dirname, '../uploads'); // Chemin du dossier uploads
+        const originalPath = path.join(uploadPath, originalFile); // Chemin complet de l'image originale
+        const resizedPath = path.join(uploadPath, `resized-${originalFile}`); // Chemin de l'image redimensionnée
 
-        // Validation de la transaction
-        await connection.commit();
-        connection.release();
+        // Redimensionnement avec Sharp (800x600)
+        await sharp(originalPath)
+            .resize(800, 600, { fit: 'cover' }) // Taille : 800x600 pixels
+            .toFile(resizedPath); // Sauvegarde de l'image redimensionnée
 
+        // Insère les données dans la base avec le nom du fichier redimensionné
+        const image = `resized-${originalFile}`;
+        const [result] = await config.execute(sql, [titre, presentation, prix, image]);
+
+        // Réponse de succès
         return res.status(201).json({
-            message: 'Formation et association à la catégorie ajoutées avec succès',
+            message: 'Formation ajoutée avec succès avec image redimensionnée',
             success: true,
-            data: {
-                titre,
-                presentation,
-                prix,
-
-            },
+            data: { titre, presentation, prix, image }
         });
     } catch (err) {
         console.error('Erreur lors de l\'insertion:', err);
 
-        if (connection) {
-            await connection.rollback();
-            connection.release();
-        }
-
+        // En cas d'erreur, retourne une réponse appropriée
         return res.status(500).json({
             message: 'Erreur interne du serveur',
-            success: false,
+            success: false
         });
     }
 });

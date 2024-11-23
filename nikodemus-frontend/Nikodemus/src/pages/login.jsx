@@ -20,6 +20,7 @@ const Login = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
+                withCredentials: true, // envoi du cookie de session
             });
             console.log(response.data);
             setMessage("Connexion réussie !"); // Message de succès

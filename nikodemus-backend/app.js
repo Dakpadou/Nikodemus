@@ -7,6 +7,16 @@ const mysql = require('mysql2');
 const formationRoute = require('./routes/formation');
 const categoryRoute = require('./routes/category');
 const loginRoute = require('./routes/login');
+const path = require('path');
+const authRoute = require('./routes/auth');
+
+
+
+
+//lire les photos pour le front
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 
 // lire du json 
 app.use(express.json());
@@ -33,7 +43,7 @@ app.use((req, res, next) => {
 app.use('/formation', formationRoute);
 app.use('/category', categoryRoute);
 app.use('/login', loginRoute);
-
+app.use('/auth', authRoute);
 
 
 

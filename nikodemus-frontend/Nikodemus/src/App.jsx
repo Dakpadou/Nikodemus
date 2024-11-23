@@ -11,6 +11,7 @@ import AddFormationAdmin from './pages/admin/formation/add-formation'
 import FormationById from './pages/formation-by-id'
 import UpdateFormation from './pages/admin/formation/update-formation'
 import AdminCategory from './pages/admin/category/admin-category'
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from './pages/login'
 
@@ -24,7 +25,15 @@ function App() {
   return (
     <>
     <div className="App">
-    < Routes>
+    < Routes>          
+    <Route
+            path="/admin/formation/add"
+            element={
+              <ProtectedRoute allowedRoles={[1, 2]}> {/* Exemple : Admin (1) ou Modérateur (2) */}
+                <AddFormationAdmin />
+              </ProtectedRoute>
+            }
+          />
       <Route index element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<Home />} /> 
