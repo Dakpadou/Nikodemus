@@ -77,10 +77,10 @@ router.post('/add', async (req, res) => {
         console.log('Données reçues:', req.body);
 
         try {
-            // Exécution de la requête avec une promesse
+            
             const [result] = await config.execute(sql, [name, presentation]);
 
-            // Log après succès de l'insertion
+            
             console.log('categorie ajoutée avec succès:', result);
 
             // Réponse statut 201 après succès de l'insertion
@@ -91,7 +91,7 @@ router.post('/add', async (req, res) => {
             });
 
         } catch (err) {
-            // Log de l'erreur en cas de problème avec la requête
+            
             console.error('Erreur lors de l\'insertion:', err);
             return res.status(500).json({
                 message: 'Erreur interne du serveur',
@@ -100,7 +100,7 @@ router.post('/add', async (req, res) => {
         }
 
     } else {
-        // Si les données sont manquantes
+        
         return res.status(400).json({
             message: 'Données manquantes',
             success: false

@@ -1,84 +1,163 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { Link } from "react-router-dom";
 
-const ManageCategory = () => {
-    const [data, setData] = useState([]); // constante data (tableau vide)
-    const navigate = useNavigate(); // Hook pour naviguer entre les pages
+const CategoryManager = () => {
+  const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState({
+    name: "",
+    presentation: "",
+    image: ""
+  });
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-    useEffect(() => {
-        axios.get('http://localhost:3000/category') // recuperation sur BDD
-            .then(res => {
-                setData(res.data); // màj de data avec les données de l'api
-                console.log(res.data);
-            })
-            .catch(err => {         // gestion d'erreur
-                console.log(err, 'Erreur lors de la récupération des données');
-            });
-    }, []); // le tableau vide représente des param optionnels
+  // récuperer les categories
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/category");
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
-    // Fonction pour supprimer 1 catégorie
-    const handleDelete = (id) => {
-        console.log('suppression en cours');
-        console.log(id);
+  const handleCreateCategory = async () => {
+    try {
+      await axios.post("http://localhost:3000/category/add", newCategory);
+      fetchCategories();
+      setNewCategory({ name: "", presentation: "", image: "" });
+    } catch (error) {
+      console.error("Error creating category:", error);
+    }
+  };
 
-        axios.delete(`http://localhost:3000/category/delete/${id}`)
+  const handleDeleteCategory = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/category/delete/${id}`);
+      fetchCategories();
+    } catch (error) {
+      console.error("Error deleting category:", error);
+    }
+  };
 
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setShowModal(true);
+  };
 
-            .then(res => {
-                console.log(res.data);
-            })
-            .catch(err => {
-                console.log(err);
-            });
+  const handleUpdateCategory = async () => {
+    try {
+      await axios.put(`http://localhost:3000/category/update/${editingCategory.id}`, editingCategory);
+      fetchCategories();
+      console.log(Categories);
+      
+      setShowModal(false);
+      setEditingCategory(null);
+    } catch (error) {
+      console.error("Error updating category:", error);
+    }
+  };
 
-    };
+  return (
+    <div> 
+      <div>
+        <h2>Créer une nouvelle catégorie</h2>
+        <input
+          type="text"
+          placeholder="Name"
+          value={newCategory.name}
+          onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Presentation"
+          value={newCategory.presentation}
+          onChange={(e) =>
+            setNewCategory({ ...newCategory, presentation: e.target.value })
+          }
+        />
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={newCategory.image}
+          onChange={(e) => setNewCategory({ ...newCategory, image: e.target.value })}
+        />
+        <button onClick={handleCreateCategory}>Create</button>
+      </div>
 
+      {/* Category Table */}
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Presentation</th>
+            <th>Image</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {categories.map((category) => (
+            <tr key={category.id}>
+              <td>
+                <Link to={`/category/${category.id}`}>{category.name}</Link>
+              </td>
+              <td>{category.presentation}</td>
+              <td>
+                <img src={category.image} alt={category.name} width="50" />
+              </td>
+              <td>
+                <button onClick={() => handleEditCategory(category)}>Edit</button>
+                <button onClick={() => handleDeleteCategory(category.id)}>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-    // Fonction pour rediriger vers le formulaire d'édition
-
-    const handleEdit = (id) => {
-        navigate(`/update/${id}`); // Redirection vers la page d'édition avec l'ID
-    };
-
-
-    return (
-        <>
-            <div>
-                <h2>Liste des catégories</h2>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nom</th>
-                            <th>Présentation</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-
-                    <tbody>
-                        {data.map((categorydata) => (
-                            <tr key={category.id}>
-                                <td>{category.id}</td>
-                                <td>{category.name}</td>
-                                <td>{category.presentation}</td>                          
-                                <td>
-                                    <button onClick={() => handleDelete(category.id)} >Supprimer</button>
-                                    <button onClick={() => handleEdit(category.id)}>Éditer</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-
-                </table>
-
-            </div>
-        </>
-    )
-        ;
+      {/* Edit Modal */}
+      {showModal && (
+        <div className="modal">
+          <h2>Edit Category</h2>
+          <input
+            type="text"
+            placeholder="Name"
+            value={editingCategory.name}
+            onChange={(e) =>
+              setEditingCategory({ ...editingCategory, name: e.target.value })
+            }
+          />
+          <input
+            type="text"
+            placeholder="Presentation"
+            value={editingCategory.presentation}
+            onChange={(e) =>
+              setEditingCategory({
+                ...editingCategory,
+                presentation: e.target.value
+              })
+            }
+          />
+          <input
+            type="text"
+            placeholder="Image URL"
+            value={editingCategory.image}
+            onChange={(e) =>
+              setEditingCategory({ ...editingCategory, image: e.target.value })
+            }
+          />
+          <button onClick={handleUpdateCategory}>Save</button>
+          <button onClick={() => setShowModal(false)}>Cancel</button>
+        </div>
+      )}
+    </div>
+  );
 };
 
-export default ManageCategory;
+export default CategoryManager;

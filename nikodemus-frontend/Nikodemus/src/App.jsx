@@ -10,6 +10,7 @@ import { Routes, Route } from "react-router-dom";
 import AddFormationAdmin from './pages/admin/formation/add-formation'
 import FormationById from './pages/formation-by-id'
 import UpdateFormation from './pages/admin/formation/update-formation'
+import AdminCategory from './pages/admin/category/admin-category'
 
 import Login from './pages/login'
 
@@ -19,7 +20,6 @@ import Login from './pages/login'
 function App() {
   const [count, setCount] = useState(0)
 
-// route index  précise la racine de l'app
 
   return (
     <>
@@ -32,6 +32,7 @@ function App() {
       <Route path="/category" element={<Categories />} />
       <Route path="/formations-par-categorie" element={<FormationsParCategorie />} />
       <Route path="/admin/formation/add" element={<AddFormationAdmin />} />
+      <Route path="/admin/category" element={<AdminCategory />} />
       <Route path="/formation/:id" element={<FormationById />} />
       <Route path="/update/:id" element={<UpdateFormation />} />
 
