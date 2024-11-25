@@ -30,7 +30,7 @@ router.post('/', async (req, res) => {
 
             if (isPasswordValid) {
                 const token = jwt.sign(
-                    { id: user.id, role: user.role },
+                    { id: user.id, role: user.role , username : user.username },
                     '6e6XRsVRQGFed7SaGs4sWoD2x3VonNCn7LLxoR1d1M_uU_UGt9WtwNbut7futfFh',
                     { expiresIn: '24h' }
                 );

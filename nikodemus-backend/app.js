@@ -16,6 +16,7 @@ const authRoute = require('./routes/auth');
 const sub = require('./routes/subscribe');
 const Checkout = require('./routes/checkout');
 const UserRoute = require('./routes/user');
+const admin = require('./routes/admin');
 
 
 
@@ -54,7 +55,7 @@ app.use('/auth', authRoute);
 app.use('/sub', sub);
 app.use('/checkout', Checkout);
 app.use('/user', UserRoute);
-
+app.use('/admin', admin);
 
 
 

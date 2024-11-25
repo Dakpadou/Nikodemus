@@ -17,6 +17,9 @@ import Login from './pages/login'
 import UserRegister from './pages/user/SubUser';
 import AdminRegister from './pages/admin/SubAdmin';
 import MyFormations from './components/myformations';
+import AdminHome from './pages/admin/HomeAdmin';
+import UserHome from './pages/user/UserHome';
+
 
 
 
@@ -46,6 +49,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+                  <Route path="/user" element={<UserHome />} />
+                  <Route path="/admin/" element={<AdminHome />} />
           <Route index element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />

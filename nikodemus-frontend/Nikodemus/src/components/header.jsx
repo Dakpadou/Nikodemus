@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth'; // Hook pour récupérer l'état de 
 
 const Header = () => {
   const { user, logout, loading } = useAuth(); // Récupère l'utilisateur et la fonction de déconnexion
-  
+  console.log(user);
   // State pour gérer le nombre d'éléments dans le panier
   const [cartItems, setCartItems] = useState(0);
 
@@ -67,10 +67,17 @@ const Header = () => {
 
           {/* Bouton de déconnexion ou lien vers la page de connexion */}
           {user ? (
-            <Button variant="outline-danger" className="ms-3" onClick={logout}>Déconnexion</Button>
+            <>
+              <span className="ms-3">Bonjour, {user.username}!</span>
+              <Button variant="outline-danger" className="ms-3" onClick={logout}>
+                Déconnexion
+              </Button>
+            </>
           ) : (
             <Nav.Item>
-              <Link to="/login" className="nav-link">Se connecter</Link>
+              <Link to="/login" className="nav-link">
+                Se connecter
+              </Link>
             </Nav.Item>
           )}
         </Navbar.Collapse>
