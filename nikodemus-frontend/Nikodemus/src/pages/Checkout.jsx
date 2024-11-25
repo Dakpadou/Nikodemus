@@ -8,6 +8,8 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
+  const apiUrl = import.meta.env.VITE_API_URL;
+
 
   useEffect(() => {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -25,7 +27,7 @@ const Checkout = () => {
     try {
       console.log('Utilisateur connecté :', user);
 
-      const response = await fetch('http://localhost:3000/checkout', {
+      const response = await fetch(`${apiUrl}/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -65,7 +67,7 @@ const Checkout = () => {
       const details = await actions.order.capture();
       console.log('Détails du paiement capturé :', details);
 
-      const response = await fetch('http://localhost:3000/checkout/confirm-order', {
+      const response = await fetch(`${apiUrl}/checkout/confirm-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

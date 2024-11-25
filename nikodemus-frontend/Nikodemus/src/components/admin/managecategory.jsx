@@ -8,7 +8,7 @@ const CategoryManager = () => {
   const [newCategory, setNewCategory] = useState({
     name: "",
     presentation: "",
-    image: "",
+    image: null,
   });
   const [editingCategory, setEditingCategory] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -16,9 +16,15 @@ const CategoryManager = () => {
 
   // Charger les catégories depuis l'API
   const fetchCategories = () => {
-    axios.get(`${apiUrl}/category`).then((response) => {
-      setCategories(response.data);
-    });
+    axios
+      .get(`${apiUrl}/category`)
+      .then((response) => {
+        setCategories(response.data);
+      })
+      .catch((error) => {
+        console.error("Erreur lors du chargement des catégories :", error);
+        setErrorMessage("Erreur lors du chargement des catégories.");
+      });
   };
 
   useEffect(() => {
@@ -37,43 +43,52 @@ const CategoryManager = () => {
     setShowModal(false);
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (editingCategory) {
+      setEditingCategory({ ...editingCategory, image: file });
+    } else {
+      setNewCategory({ ...newCategory, image: file });
+    }
+  };
+
   const handleSave = () => {
     const fieldsToValidate = editingCategory || newCategory;
-    if (
-      !fieldsToValidate.name ||
-      !fieldsToValidate.presentation ||
-      !fieldsToValidate.image
-    ) {
+
+    if (!fieldsToValidate.name || !fieldsToValidate.presentation) {
       setErrorMessage("Tous les champs doivent être remplis.");
       return;
     }
 
-    if (editingCategory) {
-      axios
-        .put(`${apiUrl}/category/update/${editingCategory.id}`, editingCategory)
-        .then(() => {
-          setCategories((prev) =>
-            prev.map((cat) =>
-              cat.id === editingCategory.id ? editingCategory : cat
-            )
-          );
-          handleCloseModal();
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la mise à jour :", error);
-        });
-    } else {
-      axios
-        .post(`${apiUrl}/category/add`, newCategory)
-        .then((response) => {
-          setCategories((prev) => [...prev, response.data]);
-          setNewCategory({ name: "", presentation: "", image: "" });
-          handleCloseModal();
-        })
-        .catch((error) => {
-          console.error("Erreur lors de l'ajout :", error);
-        });
+    const formData = new FormData();
+    formData.append("name", fieldsToValidate.name);
+    formData.append("presentation", fieldsToValidate.presentation);
+
+    // Ajoutez l'image seulement si elle existe
+    if (fieldsToValidate.image instanceof File) {
+      formData.append("image", fieldsToValidate.image);
+    } else if (!editingCategory) {
+      setErrorMessage("L'image est obligatoire pour ajouter une nouvelle catégorie.");
+      return;
     }
+
+    const request = editingCategory
+      ? axios.put(`${apiUrl}/category/update/${editingCategory.id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+      : axios.post(`${apiUrl}/category/add`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+    request
+      .then(() => {
+        fetchCategories(); // Rafraîchit la liste des catégories
+        handleCloseModal();
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la sauvegarde :", error);
+        setErrorMessage("Erreur lors de la sauvegarde des données.");
+      });
   };
 
   const handleDelete = (categoryId) => {
@@ -81,18 +96,17 @@ const CategoryManager = () => {
       axios
         .delete(`${apiUrl}/category/delete/${categoryId}`)
         .then(() => {
-          setCategories((prev) =>
-            prev.filter((category) => category.id !== categoryId)
-          );
+          setCategories((prev) => prev.filter((category) => category.id !== categoryId));
         })
         .catch((error) => {
           console.error("Erreur lors de la suppression :", error);
+          setErrorMessage("Erreur lors de la suppression.");
         });
     }
   };
 
   return (
-    <div>
+    <div className="container mt-4">
       <Button variant="primary" onClick={() => handleShowModal()}>
         Ajouter une catégorie
       </Button>
@@ -114,9 +128,9 @@ const CategoryManager = () => {
               <td>{category.presentation}</td>
               <td>
                 <img
-                  src={category.image}
+                  src={`${apiUrl}/uploads/${category.image}`}
                   alt={category.name}
-                  style={{ width: "50px" }}
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
                 />
               </td>
               <td>
@@ -147,7 +161,11 @@ const CategoryManager = () => {
         </Modal.Header>
         <Modal.Body>
           {errorMessage && (
-            <Alert variant="danger" onClose={() => setErrorMessage("")} dismissible>
+            <Alert
+              variant="danger"
+              onClose={() => setErrorMessage("")}
+              dismissible
+            >
               {errorMessage}
             </Alert>
           )}
@@ -193,21 +211,18 @@ const CategoryManager = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Image (URL)</Form.Label>
-              <Form.Control
-                type="text"
-                value={editingCategory?.image || newCategory.image}
-                onChange={(e) => {
-                  if (editingCategory) {
-                    setEditingCategory({
-                      ...editingCategory,
-                      image: e.target.value,
-                    });
-                  } else {
-                    setNewCategory({ ...newCategory, image: e.target.value });
-                  }
-                }}
-              />
+              <Form.Label>Image</Form.Label>
+              <Form.Control type="file" onChange={handleFileChange} />
+              {editingCategory?.image && (
+                <div className="mt-2">
+                  <strong>Image actuelle :</strong>
+                  <img
+                    src={`${apiUrl}/uploads/${editingCategory.image}`}
+                    alt="Image actuelle"
+                    style={{ width: "100px", marginTop: "10px" }}
+                  />
+                </div>
+              )}
             </Form.Group>
           </Form>
         </Modal.Body>

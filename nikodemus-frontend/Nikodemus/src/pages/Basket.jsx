@@ -16,12 +16,15 @@ const Basket = () => {
     const updatedCart = cartItems.filter(item => item.id !== id);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     getCartItems(); // Rechargement des articles après suppression
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   // Fonction pour vider le panier
   const clearCart = () => {
     localStorage.removeItem("cart");
     getCartItems(); // Rechargement des articles après vidage
+    window.dispatchEvent(new Event("cartUpdated"));
+
   };
 
   // Calcul du total du panier

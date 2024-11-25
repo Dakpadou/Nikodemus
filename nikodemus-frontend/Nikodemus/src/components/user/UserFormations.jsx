@@ -71,7 +71,7 @@ const UserFormations = ({ userId }) => {
                                         <strong>Date :</strong> {formation.date}
                                     </Card.Text>
                                     {/* Lien vers la page de détails de la formation */}
-                                    <Card.Link href={`/formation/${formation.id}`} className="btn btn-primary">
+                                    <Card.Link href={`/formation/content/${formation.id}`} className="btn btn-primary">
                                         Voir plus
                                     </Card.Link>
                                 </Card.Body>

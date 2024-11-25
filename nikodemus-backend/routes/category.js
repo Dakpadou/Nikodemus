@@ -2,8 +2,39 @@ const express = require('express');
 const app = express();
 const mysql = require('mysql2');
 const router = express.Router();
-const config = require('../config'); // import de la connection a la bdd
-const bodyParser = require('body-parser'); //parser des data
+const config = require('../config'); // Import de la connexion à la BDD
+const bodyParser = require('body-parser'); // Parser des données
+const multer = require('multer'); // Multer pour l'upload des fichiers
+const path = require('path'); // Import de "path"
+
+// Configuration de Multer pour gérer les uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = path.resolve(__dirname, '../uploads'); // Dossier de destination
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname).toLowerCase(); // Récupère l'extension
+        cb(null, `${uniqueSuffix}${ext}`);
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // Taille max : 5 Mo
+    fileFilter: (req, file, cb) => {
+        const fileTypes = /jpeg|jpg|png|gif/; // Types autorisés
+        const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimeType = fileTypes.test(file.mimetype);
+
+        if (extname && mimeType) {
+            return cb(null, true); // Fichier autorisé
+        } else {
+            cb(new Error('Format de fichier non autorisé')); // Fichier rejeté
+        }
+    }
+});
 
 
 //  route page toutes categories
@@ -19,6 +50,80 @@ router.get('/', async (req, res) => {
     }
 }
 );
+
+router.get('/cat/:id/formations', async (req, res) => {
+    const categoryId = req.params.id;
+
+    const sql = `
+        SELECT f.id, f.Titre, f.presentation, f.image, f.prix 
+        FROM formacat fc
+        JOIN formation f ON fc.formation_id = f.id
+        WHERE fc.category_id = ?
+    `;
+
+    try {
+        const [rows] = await config.execute(sql, [categoryId]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message: "Aucune formation trouvée pour cette catégorie.",
+                success: false,
+            });
+        }
+
+        res.status(200).json({ data: rows, success: true });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des formations :", error);
+        res.status(500).json({ message: "Erreur serveur", success: false });
+    }
+});
+
+
+router.post('/formation/assign-categories/:formationId', async (req, res) => {
+    const formationId = req.params.formationId;
+    const { categories } = req.body;
+
+    if (!categories || !Array.isArray(categories)) {
+        return res.status(400).json({ message: "Données invalides : 'categories' doit être un tableau." });
+    }
+
+    try {
+        // Supprimer les catégories existantes pour la formation
+        await config.query("DELETE FROM formacat WHERE formation_id = ?", [formationId]);
+
+        // Insérer les nouvelles catégories
+        for (const categoryId of categories) {
+            await config.query("INSERT INTO formacat (formation_id, category_id) VALUES (?, ?)", [formationId, categoryId]);
+        }
+
+        res.status(200).json({ message: "Catégories assignées avec succès." });
+    } catch (error) {
+        console.error("Erreur lors de l'assignation des catégories :", error);
+        res.status(500).json({ message: "Erreur interne du serveur." });
+    }
+});
+
+router.get('/formation/categories/:formationId', async (req, res) => {
+    const formationId = req.params.formationId;
+
+    const sql = `
+        SELECT c.id AS category_id, c.name AS category_name
+        FROM formacat fc
+        JOIN category c ON fc.category_id = c.id
+        WHERE fc.formation_id = ?
+    `;
+
+    try {
+        const [rows] = await config.execute(sql, [formationId]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Aucune catégorie assignée.", success: false });
+        }
+        res.status(200).json({ data: rows, success: true });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des catégories assignées :", error);
+        res.status(500).json({ message: "Erreur serveur", success: false });
+    }
+});
 
 // Route  récupérer les catégories (id + name uniquement)
 router.get('/shortcategory', async (req, res) => {
@@ -110,34 +215,30 @@ router.post('/add', async (req, res) => {
 
 // Route modifier les categories
 
-router.put('/update/:id', async (req, res) => {
-    const id = req.params.id; 
-    const { name, presentation, image } = req.body; 
-
-    if (!id || isNaN(id)) {
-        return res.status(400).json({ error: "Valid category ID is required" });
-    }
-
-    if (!name || !presentation || !image) {
-        return res.status(400).json({ error: "All fields (name, presentation, image) are required" });
+router.put('/update/:id', upload.single('image'), async (req, res) => {
+    const { name, presentation } = req.body;
+    const image = req.file ? req.file.filename : null; // Ajoutez l'image seulement si elle existe
+    
+    if (!name || !presentation) {
+        return res.status(400).json({ error: "All fields (name, presentation) are required" });
     }
 
     try {
-        const query = `UPDATE CATEGORY SET name = ?, presentation = ?, image = ? WHERE id = ?`;
-        const values = [name, presentation, image, id];
-        const [result] = await config.query(query, values);
+        const sql = `
+            UPDATE CATEGORY 
+            SET name = ?, presentation = ?${image ? ', image = ?' : ''} 
+            WHERE id = ?
+        `;
+        const params = image ? [name, presentation, image, req.params.id] : [name, presentation, req.params.id];
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Category not found" });
-        }
+        await config.query(sql, params);
 
-        res.json({ message: "Category updated successfully" });
+        return res.status(200).json({ message: "Category updated successfully" });
     } catch (error) {
-        console.error("Error updating category:", error);
-        res.status(500).json({ error: "Error updating category" });
+        console.error("Erreur lors de la mise à jour :", error);
+        res.status(500).json({ error: "Erreur serveur" });
     }
 });
-
 // route supprimer une catégorie
 
 router.delete('/delete/:id', async (req, res) => {

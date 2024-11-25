@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { Form, Button, Container, Alert } from "react-bootstrap";
 
 const Login = () => {
-        const [email, setEmail] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+    const navigate = useNavigate(); // Hook pour naviguer entre les pages
     const apiUrl = import.meta.env.VITE_API_URL;
 
     const handleSubmit = async (e) => {
@@ -23,47 +26,56 @@ const Login = () => {
                 withCredentials: true, // envoi du cookie de session
             });
             console.log(response.data);
-            setMessage("Connexion réussie !"); 
+            setMessage("Connexion réussie !");
+            
+            // Redirige vers la page d'accueil après 2 secondes
+            setTimeout(() => {
+                navigate("/");
+            }, 2000);
         } catch (error) {
-            // Gérer les erreurs ici
-            console.error('Erreur lors de la connexion:', error);
+            console.error("Erreur lors de la connexion:", error);
             if (error.response) {
-                // La requête a été faite et le serveur a répondu avec un code d'état qui sort de la plage de 2xx
                 setMessage(error.response.data.message || "Erreur lors de la connexion.");
             } else if (error.request) {
-                // La requête a été faite mais aucune réponse n'a été reçue
                 setMessage("Aucune réponse du serveur.");
             } else {
-                // Quelque chose s'est produit lors de la configuration de la requête
                 setMessage("Erreur: " + error.message);
             }
         }
     };
 
     return (
-        <>
-            <div>
-                <h2>Se connecter</h2>
-                <form onSubmit={handleSubmit}>
-                    <label>Email</label>
-                    <input
-                        type="text"
-                        name="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <label>Mot de passe</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button type="submit">Connexion</button>
-                </form>
-                {message && <p>{message}</p>} {/* Affiche le message */}
+        <Container className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+            <div style={{ width: "100%", maxWidth: "400px" }}>
+                <h2 className="text-center mb-4">Se connecter</h2>
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3" controlId="formEmail">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control
+                            type="email"
+                            placeholder="Entrez votre email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formPassword">
+                        <Form.Label>Mot de passe</Form.Label>
+                        <Form.Control
+                            type="password"
+                            placeholder="Entrez votre mot de passe"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </Form.Group>
+                    <Button variant="primary" type="submit" className="w-100">
+                        Connexion
+                    </Button>
+                </Form>
+                {message && <Alert className="mt-3" variant="info">{message}</Alert>}
+
+                <Link to='/register-user'>Créer un compte</Link>
             </div>
-        </>
+        </Container>
     );
 };
 

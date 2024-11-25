@@ -1,75 +1,97 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Form, Button, Container, Row, Col, Card, Alert } from "react-bootstrap";
 import { Editor } from "@tinymce/tinymce-react";
+import { useAuth } from '../../../hooks/useAuth';
 
 const AddFormation = () => {
+    const { user, loading } = useAuth(); // Inclut l'état `loading`
     const [data, setData] = useState({
         titre: "",
         presentation: "",
-        content: "", // pour TinyMCE
+        content: "",
         prix: "",
-        image: null
+        image: null,
+        author: "" // Initialiser avec une chaîne vide
     });
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
 
-    // Fonction pour gérer les changements dans l'éditeur TinyMCE (contenu)
-    const handleEditorChange = (content, editor) => {
+    useEffect(() => {
+        if (!loading && user?.id) {
+            setData((prevData) => ({
+                ...prevData,
+                author: user.id
+            }));
+        }
+    }, [loading, user]);
+
+    const handleEditorChange = (content) => {
         setData({
             ...data,
-            content: content // Mettre à jour "content" pour TinyMCE
+            content
         });
     };
 
-    // Fonction pour gérer les changements dans les autres champs (présentation, prix, etc.)
     const handleChange = (e) => {
         const { name, value } = e.target;
         setData({
             ...data,
-            [name]: value // Mettre à jour le champ texte classique
+            [name]: value
         });
     };
 
-    // Fonction pour gérer le changement de l'image
     const handleImageChange = (e) => {
         setData({
             ...data,
-            image: e.target.files[0] // Mettre à jour l'image
+            image: e.target.files[0]
         });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // Vérifiez que `author` est défini avant de soumettre
+        if (!data.author) {
+            setError("Erreur : Impossible d'ajouter une formation sans utilisateur.");
+            return;
+        }
+
         const formData = new FormData();
         formData.append("titre", data.titre);
-        formData.append("presentation", data.presentation);  // Champ texte classique
-        formData.append("content", data.content); // Contenu de TinyMCE
+        formData.append("presentation", data.presentation);
+        formData.append("content", data.content);
         formData.append("prix", data.prix);
-        formData.append("image", data.image); // Ajout de l'image
+        formData.append("image", data.image);
+        formData.append("author", data.author);
 
-        // Envoi de la requête POST avec les données du formulaire
         axios.post("http://localhost:3000/formation/add", formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
         })
-        .then((res) => {
+        .then(() => {
             setSuccess(true);
             setError("");
             setData({
                 titre: "",
                 presentation: "",
-                content: "", // Réinitialisation du contenu TinyMCE
+                content: "",
                 prix: "",
-                image: null
+                image: null,
+                author: user?.id || "" // Réinitialiser avec l'utilisateur actuel
             });
         })
         .catch((err) => {
             setError("Une erreur est survenue lors de l'ajout de la formation.");
+            console.error(err);
         });
     };
+
+    // Affichez un message de chargement tant que les données utilisateur ne sont pas prêtes
+    if (loading) {
+        return <p>Chargement des données utilisateur...</p>;
+    }
 
     return (
         <Container className="mt-5">
@@ -118,7 +140,7 @@ const AddFormation = () => {
                                     <Form.Label>Contenu</Form.Label>
                                     <Editor
                                         apiKey="6wyjw88f7551uupx6wqkslqmss5ll5qvudm9ue1acl21w4qw"
-                                        value={data.content} // Utilisation de "content" pour TinyMCE
+                                        value={data.content}
                                         onEditorChange={handleEditorChange}
                                         init={{
                                             height: 500,
@@ -128,10 +150,9 @@ const AddFormation = () => {
                                                 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
                                                 'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
                                             ],
-                                            toolbar: 'undo redo | blocks | ' +
-                                                'bold italic forecolor | alignleft aligncenter ' +
-                                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                                'removeformat | help',
+                                            toolbar: 'undo redo | blocks | bold italic forecolor | ' +
+                                                'alignleft aligncenter alignright alignjustify | ' +
+                                                'bullist numlist outdent indent | removeformat | help',
                                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                         }}
                                     />

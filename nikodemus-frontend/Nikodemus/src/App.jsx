@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import './App.css';
+import './styles/App.css';
 import Home from './pages/Home';
 import Formation from './pages/formation';
-import Categories from './pages/category';
 import FormationsParCategorie from './pages/formation-in-category';
 import { Routes, Route } from "react-router-dom";
 import AddFormationAdmin from './pages/admin/formation/add-formation';
@@ -19,6 +18,10 @@ import AdminRegister from './pages/admin/SubAdmin';
 import MyFormations from './components/myformations';
 import AdminHome from './pages/admin/HomeAdmin';
 import UserHome from './pages/user/UserHome';
+import TrainerHome from './pages/trainer/HomeTrainer';
+import FormationContent from "./pages/FormationContent";
+import CategoryById from "./pages/category-by-id";
+import Categories from './pages/category';
 
 
 
@@ -55,7 +58,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route path="/formation" element={<Formation />} />
-          <Route path="/category" element={<Categories />} />
           <Route path="/formations-par-categorie" element={<FormationsParCategorie />} />
           <Route path="/formation/:id" element={<FormationById />} />
           <Route path="/update/:id" element={<UpdateFormation />} />
@@ -65,6 +67,10 @@ function App() {
           <Route path="/register-user" element={<UserRegister />} />
           <Route path="/register-admin" element={<AdminRegister />} />
           <Route path="/myformations" element={<MyFormations />} />
+          <Route path="/formation/content/:formationId" element={<FormationContent />} />
+          <Route path="/trainer" element={<TrainerHome />} />
+          <Route path="/category/:id" element={<CategoryById />} />
+          <Route path="/category" element={<Categories />} />
         </Routes>
       </div>
     </>

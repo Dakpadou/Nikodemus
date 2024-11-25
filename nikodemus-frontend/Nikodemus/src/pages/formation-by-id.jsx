@@ -3,11 +3,14 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Container, Card, Button, Row, Col } from "react-bootstrap";
 import { Helmet } from "react-helmet";
+import { useAuth } from "../hooks/useAuth";
 
 const FormationById = () => {
+  const { user, loading } = useAuth(); // Vérifie l'utilisateur connecté
   const [formation, setFormation] = useState(null);
   const [error, setError] = useState(null);
   const [cartMessage, setCartMessage] = useState("");
+  const [alreadyPurchased, setAlreadyPurchased] = useState(false); // État pour savoir si la formation est achetée
   const { id } = useParams();
 
   useEffect(() => {
@@ -21,6 +24,22 @@ const FormationById = () => {
         console.error(err);
       });
   }, [id]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      axios
+        .get(`http://localhost:3000/user/ordersbyuser/${user.id}`) // Route pour vérifier les commandes
+        .then((res) => {
+          console.log(res.data.data);
+          if (res.data.data.includes(parseInt(id))) {
+            setAlreadyPurchased(true); // Si l'ID de la formation est dans les commandes, elle est déjà achetée
+          }
+        })
+        .catch((err) => {
+          console.error("Erreur lors de la vérification des commandes :", err);
+        });
+    }
+  }, [loading, user, id]);
 
   const addToCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -39,6 +58,7 @@ const FormationById = () => {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   if (error) {
@@ -78,17 +98,14 @@ const FormationById = () => {
               <p>
                 <strong>Prix :</strong> {formation.data.prix} €
               </p>
-              <Button
-                variant="success"
-                onClick={addToCart}
-                className="mr-2"
-              >
-                <i
-                  className="fas fa-shopping-cart"
-                  style={{ marginRight: "8px" }}
-                ></i>
-                Ajouter au Panier
-              </Button>
+              {!alreadyPurchased ? ( // Cache le bouton si la formation est déjà achetée
+                <Button variant="success" onClick={addToCart} className="mr-2">
+                  <i className="fas fa-shopping-cart" style={{ marginRight: "8px" }}></i>
+                  Ajouter au Panier
+                </Button>
+              ) : (
+                <p className="text-success">Vous avez déjà acheté cette formation.</p>
+              )}
               {cartMessage && <p>{cartMessage}</p>}
             </Card.Body>
           </Card>

@@ -55,6 +55,62 @@ router.get('/:id', async (req, res) => {
 }
 );
 
+router.get('/getfull/:id', async (req, res) => {
+
+    const formationId = req.params.id;
+    const sql = 'SELECT id, Titre, presentation, prix, image , content FROM FORMATION WHERE id=?';
+
+    try {
+        const [rows, fields] = await config.query(sql, [formationId]); // execution de la requete sql
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message: 'Formation non trouvée', success: false
+            });
+        }
+
+        return res.status(200).json({
+            data: rows[0], success: true
+        });
+        console.log(rows);
+
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send('Erreur interne du serveur');
+
+    }
+}
+);
+
+// recuper les formation by trainer
+router.get('/trainer/:id', async (req, res) => {
+    const userId = req.params.id;
+
+    const sql = 'SELECT id, Titre, presentation, prix, image , content FROM formation WHERE author = ?';
+
+    try {
+        const [rows] = await config.query(sql, [userId]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message: 'Aucune formation trouvée pour cet utilisateur.',
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            data: rows,
+            success: true
+        });
+    } catch (err) {
+        console.error('Erreur lors de la récupération des formations :', err);
+        return res.status(500).json({
+            message: 'Erreur interne du serveur',
+            success: false
+        });
+    }
+});
 
 // route page afficher formation dans leur catégorie
 router.get('/incategory/:id', async (req, res) => {
@@ -107,10 +163,10 @@ const upload = multer({
 // route page ajout formation
 
 router.post('/add', upload.single('image'), async (req, res) => {
-    const { titre, presentation, prix , content } = req.body;
+    const { titre, presentation, prix, content, author } = req.body; // Ajout de `author`
     console.log(req.body);
 
-    const sqlFormation = 'INSERT INTO formation (titre, presentation, prix, image , content) VALUES (?, ?, ?, ?, ?)';
+    const sqlFormation = 'INSERT INTO formation (titre, presentation, prix, image, content, author) VALUES (?, ?, ?, ?, ?, ?)';
     const sqlFormacat = 'INSERT INTO formacat (formation_id, category_id) VALUES (?, ?)';
 
     try {
@@ -135,7 +191,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
 
         // Insère les données dans la table formation
         const image = `resized-${originalFile}`;
-        const [resultFormation] = await config.execute(sqlFormation, [titre, presentation, prix, image , content]);
+        const [resultFormation] = await config.execute(sqlFormation, [titre, presentation, prix, image, content, author]);
 
         // Récupère l'ID de la formation insérée
         const formationId = resultFormation.insertId;
@@ -148,7 +204,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
         return res.status(201).json({
             message: 'Formation ajoutée avec succès avec image redimensionnée',
             success: true,
-            data: { titre, presentation, prix, image, formationId, categoryId }
+            data: { titre, presentation, prix, image, content, author, formationId, categoryId }
         });
     } catch (err) {
         console.error('Erreur lors de l\'insertion:', err);
@@ -210,29 +266,42 @@ router.delete('/delete/:id', async (req, res) => {
 
 // Route modifier les formations
 
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id', upload.single('image'), async (req, res) => {
+    const { titre, presentation, prix, content, currentImage } = req.body;
     const formationId = req.params.id;
-    const { titre, presentation, prix } = req.body;
-
-    const sql = 'UPDATE formation SET titre = ?, presentation = ?, prix = ? WHERE id = ?';
 
     try {
-        const [result] = await config.execute(sql, [titre, presentation, prix, formationId]);
-        console.log('Formation màj avec succès', result);
+        // Si une nouvelle image est envoyée, utilisez-la ; sinon, conservez l'image actuelle
+        const image = req.file ? req.file.filename : currentImage;
+
+        // Mise à jour des données dans la base de données
+        const sql = `
+            UPDATE formation 
+            SET titre = ?, presentation = ?, prix = ?, content = ?, image = ? 
+            WHERE id = ?`;
+        const result = await config.execute(sql, [
+            titre || null,
+            presentation || null,
+            prix || null,
+            content || null,
+            image,
+            formationId
+        ]);
 
         return res.status(200).json({
-            message: 'Formation màj avec succès',
             success: true,
-            data: { titre, presentation, prix }
+            message: "Formation mise à jour avec succès.",
+            data: { titre, presentation, prix, content, image }
         });
-    } catch (err) {
-        console.error('Erreur lors de la màj', err);
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour :", error);
         return res.status(500).json({
-            message: 'Erreur interne du serveur',
-            success: false
+            success: false,
+            message: "Erreur interne du serveur."
         });
     }
 });
+
 
 
 

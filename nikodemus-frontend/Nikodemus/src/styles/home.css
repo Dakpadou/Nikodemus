@@ -1,0 +1,9 @@
+.custom-caption {
+    background: rgba(0, 0, 0, 0.7); /* Fond semi-transparent noir */
+    border-radius: 10px; /* Coins arrondis */
+    padding: 15px; /* Espacement interne */
+    color: #fff; /* Texte blanc */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); /* Ombre pour plus de lisibilité */
+    border: 2px solid #fff; /* Bordure blanche */
+  }
+  

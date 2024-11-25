@@ -17,8 +17,19 @@ const Header = () => {
 
   // Mettez à jour le nombre d'articles dans le panier à chaque chargement
   useEffect(() => {
-    setCartItems(getCartCount());
-  }, []); // Ce useEffect ne s'exécute qu'une seule fois lors du montage du composant
+    // Fonction pour mettre à jour le nombre d'éléments dans le panier
+    const updateCartCount = () => {
+      setCartItems(getCartCount());
+    };
+  
+    // écouteur événement cartUpdated pour l'icone panier
+    window.addEventListener("cartUpdated", updateCartCount);
+  
+    // Nettoyage de l'écouteur lorsque le composant est démonté
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount);
+    };
+  }, []);
 
   if (loading) {
     return <div>Chargement...</div>; // Affiche un message de chargement jusqu'à ce que l'utilisateur soit prêt
@@ -41,17 +52,39 @@ const Header = () => {
             navbarScroll
           >
             <Nav.Link as={Link} to="/">Accueil</Nav.Link>
-            <Nav.Link as={Link} to="/formation">Formations</Nav.Link>
-            <Nav.Link as={Link} to="/category">Catégories</Nav.Link>
-            <Nav.Link as={Link} to="/formations-par-categorie">Formation par catégorie</Nav.Link>
+            <Nav.Link as={Link} to="/formation">Toutes les formations</Nav.Link>
+            <Nav.Link as={Link} to="/formations-par-categorie">Catégories</Nav.Link>
 
-            {/* Affichage conditionnel des liens d'administration si l'utilisateur est connecté et est un administrateur */}
+            {/* Affichage conditionnel au roles*/}
+            
             {user?.role === 1 && (
               <Nav.Item>
-                <Link to="/admin/formation/add" className="nav-link">Admin</Link>
+                <Link to="/admin" className="nav-link">Administration</Link>
               </Nav.Item>
             )}
+          
+          {user?.role === 2 && (
+              <Nav.Item>
+                <Link to="/trainer" className="nav-link">Espace formateur</Link>
+              </Nav.Item>
+            )}
+
+            {user?.role === 3 && (
+              <Nav.Item>
+                <Link to="/user" className="nav-link">Mes formations</Link>
+              </Nav.Item>
+            )}
+
+            {user?.role !== 1 && user?.role !== 2 && user?.role !== 3 && (
+              <Nav.Item>
+                <Link to="/register-user" className="nav-link">Créer un compte</Link>
+              </Nav.Item>
+            )}
+
+            
           </Nav>
+
+
 
           {/* Panier avec notification de quantité d'éléments */}
           <Nav.Item className="ms-3">
@@ -68,13 +101,13 @@ const Header = () => {
           {/* Bouton de déconnexion ou lien vers la page de connexion */}
           {user ? (
             <>
-              <span className="ms-3">Bonjour, {user.username}!</span>
+              <span className="ms-3">Bonjour, {user.username} !</span>
               <Button variant="outline-danger" className="ms-3" onClick={logout}>
                 Déconnexion
               </Button>
             </>
           ) : (
-            <Nav.Item>
+            <Nav.Item className="ms-3">
               <Link to="/login" className="nav-link">
                 Se connecter
               </Link>

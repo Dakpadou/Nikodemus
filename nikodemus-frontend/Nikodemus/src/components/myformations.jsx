@@ -2,28 +2,29 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { useAuth } from '../hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 const UserFormations = ({ userId }) => {
-  // Récupération du contexte utilisateur via le hook useAuth
   const { user } = useAuth();
 
- // États pour gérer les données, le chargement et les erreurs
   const [formations, setFormations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // URL de l'API (à adapter selon votre environnement)
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // Effet pour récupérer les données des formations
   useEffect(() => {
     const fetchFormations = async () => {
       try {
-         // Requête pour récupérer les formations
         const response = await axios.get(`${apiUrl}/user/myformation/${user.id}`);
-        setFormations(response.data.data); // Assurez-vous que la structure correspond à vos données
+        setFormations(response.data.data); 
       } catch (err) {
-        setError('Erreur lors du chargement des formations.');
+        // Si une erreur HTTP est 404 et concerne les formations non trouvées
+        if (err.response && err.response.status === 404) {
+          setFormations([]); // Aucun résultat, mais pas une erreur critique
+        } else {
+          setError('Erreur lors du chargement des formations.');
+        }
       } finally {
         setLoading(false);
       }
@@ -32,9 +33,8 @@ const UserFormations = ({ userId }) => {
     if (user) {
       fetchFormations();
     }
-  }, [user, apiUrl]); // Ajoutez les dépendances nécessaires
+  }, [user, apiUrl]);
 
-  // Rendu du composant
   return (
     <Container>
       <h1 className="my-4">Mes Formations</h1>
@@ -46,11 +46,13 @@ const UserFormations = ({ userId }) => {
       )}
       {error && <Alert variant="danger">{error}</Alert>}
       {!loading && !error && formations.length === 0 && (
-        <Alert variant="info">Aucune formation trouvée.</Alert>
+        <Alert variant="info">
+          Aucune formation trouvée. <Link to="/">Revenir à l'accueil</Link>
+        </Alert>
       )}
       {!loading && !error && formations.length > 0 && (
         <Row>
-          {formations.map((formation) => (
+          {formations.map((formation) => ( 
             <Col key={formation.id} md={4} className="mb-4">
               <Card>
                 <Card.Body>

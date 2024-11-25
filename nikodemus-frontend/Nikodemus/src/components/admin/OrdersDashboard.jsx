@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import CategoryManager from './managecategory';
 
 // Configurer Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend);
@@ -89,6 +90,7 @@ const MonthlyDashboard = () => {
 
   return (
     <Container className="mt-4">
+      <CategoryManager/>
       <h2 className="text-center mb-4">Dashboard Mensuel</h2>
       <Row>
         <Col md={6} className="mb-4">
