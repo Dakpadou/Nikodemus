@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Form, Container , Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom"; // Remplacer useHistory par useNavigate
+import { Helmet } from "react-helmet";
 
 const InscriptionUser = () => {
   const [username, setUsername] = useState("");
@@ -51,6 +52,15 @@ const InscriptionUser = () => {
 
   return (
     <Container className="d-flex justify-content-center align-items-center min-vh-100">
+         <Helmet>
+                <meta charSet="utf-8" />
+                <title>NikoDemus-Inscription</title>
+                <meta
+                    name="description"
+                    content="page de création de compte"
+                />
+                <link rel="canonical" href={`http://localhost:5173/formation`} />
+            </Helmet>
       <div className="form-container p-4 rounded shadow-sm bg-light w-100" style={{ maxWidth: "500px" }}>
         <h2 className="text-center mb-4">Inscription</h2>
         {error && <Alert variant="danger">{error}</Alert>}

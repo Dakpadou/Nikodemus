@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Alert, Card } from "react-bootstrap";
 import { useAuth } from "../hooks/useAuth";
+import { Helmet } from "react-helmet";
 
 const FormationContent = () => {
     const { user, loading } = useAuth(); // Récupère les informations utilisateur
@@ -39,6 +40,15 @@ const FormationContent = () => {
 
     return (
       <Container className="mt-4">
+           <Helmet>
+                <meta charSet="utf-8" />
+                <title>NikoDemus-Formations</title>
+                <meta
+                    name="description"
+                    content="Toutes nos formations"
+                />
+                <link rel="canonical" href={`http://localhost:5173/formation`} />
+            </Helmet>
       {/* Affichage des erreurs */}
       {error && <Alert variant="danger">{error}</Alert>}
 
@@ -47,7 +57,7 @@ const FormationContent = () => {
           <article className="p-4  rounded">
               <header className="mb-4">
                   <h1>{content.Titre}</h1>
-                  <p><strong>Prix :</strong> {content.prix} €</p>
+                  
               </header>
               
               {/* Ajout de l'image si disponible */}

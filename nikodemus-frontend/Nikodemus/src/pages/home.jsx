@@ -2,16 +2,30 @@ import React from 'react';
 import { Carousel, Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import '../styles/home.css'; // Ajoutez un fichier CSS pour les styles personnalisés
+import { Helmet } from "react-helmet";
+
+
+
 
 const Home = () => {
   return (
     <div>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>NikoDemus-Accueil</title>
+        <meta
+          name="description"
+          content="accueil du site"
+        />
+        <link rel="canonical" href={`http://localhost:5173/`} />
+      </Helmet>
       <header className="bg-primary text-white text-center py-5">
         <h1>Bienvenue sur notre plateforme de formation</h1>
         <p>Découvrez des formations adaptées à vos besoins et développez vos compétences dès aujourd'hui !</p>
       </header>
 
       <Container className="my-5">
+
         {/* Carrousel */}
         <Carousel>
           <Carousel.Item>
@@ -48,21 +62,21 @@ const Home = () => {
             </Carousel.Caption>
           </Carousel.Item>
         </Carousel>
-<div style={{ textAlign: 'center', marginTop: '20px' }}>
-    <a href="/formations-par-categorie" style={{
-        display: 'inline-block',
-        padding: '10px 20px',
-        fontSize: '16px',
-        color: '#fff',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        textDecoration: 'none',
-        cursor: 'pointer'
-    }}>
-        Découvrir nos formations
-    </a>
-</div>
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <a href="/formations-par-categorie" style={{
+            display: 'inline-block',
+            padding: '10px 20px',
+            fontSize: '16px',
+            color: '#fff',
+            backgroundColor: '#007BFF',
+            border: 'none',
+            borderRadius: '5px',
+            textDecoration: 'none',
+            cursor: 'pointer'
+          }}>
+            Découvrir nos formations
+          </a>
+        </div>
 
 
         {/* Catégories populaires */}

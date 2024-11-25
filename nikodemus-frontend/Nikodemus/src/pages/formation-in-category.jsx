@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Card, Button, Row, Col, Spinner } from "react-bootstrap";
+import { Helmet } from "react-helmet";
 
 const FormationsParCategorie = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -39,7 +40,7 @@ const FormationsParCategorie = () => {
       .get(`${apiUrl}/formation/incategory/${selectedCategory}`)
       .then((response) => {
         console.log(response.data);
-        
+
         const uniqueFormations = enleveDoublon(response.data);
         setFormations(uniqueFormations);
         setIsLoadingFormations(false);
@@ -52,6 +53,15 @@ const FormationsParCategorie = () => {
 
   return (
     <div className="container">
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>NikoDemus-Formations par catégories</title>
+        <meta
+          name="description"
+          content="Trier les formations par catégories"
+        />
+        <link rel="canonical" href={`http://localhost:5173/formation`} />
+      </Helmet>
       <h1 className="my-4">Formations</h1>
       {isLoading ? (
         <Spinner animation="border" role="status">

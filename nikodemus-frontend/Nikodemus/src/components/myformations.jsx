@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Card, Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 const UserFormations = ({ userId }) => {
   const { user } = useAuth();
@@ -37,6 +38,15 @@ const UserFormations = ({ userId }) => {
 
   return (
     <Container>
+         <Helmet>
+                <meta charSet="utf-8" />
+                <title>NikoDemus-Mes formations</title>
+                <meta
+                    name="description"
+                    content="Toutes nos formations"
+                />
+                <link rel="canonical" href={`http://localhost:5173/myformations`} />
+            </Helmet>
       <h1 className="my-4">Mes Formations</h1>
       {loading && (
         <div className="text-center">

@@ -52,8 +52,10 @@ const Header = () => {
             navbarScroll
           >
             <Nav.Link as={Link} to="/">Accueil</Nav.Link>
-            <Nav.Link as={Link} to="/formation">Toutes les formations</Nav.Link>
-            <Nav.Link as={Link} to="/formations-par-categorie">Catégories</Nav.Link>
+            <Nav.Link as={Link} to="/formation">Les formations</Nav.Link>
+            <Nav.Link as={Link} to="/formations-par-categorie">Filtrer par catégorie</Nav.Link>
+            <Nav.Link as={Link} to="/category">Toutes les catégories</Nav.Link>
+
 
             {/* Affichage conditionnel au roles*/}
             

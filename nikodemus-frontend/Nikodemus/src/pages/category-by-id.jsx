@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Row, Col, Card, Spinner, Alert, Button } from "react-bootstrap";
 import axios from "axios";
+import { Helmet } from "react-helmet";
 
 const CategoryById = () => {
     const { id } = useParams(); // Récupérer l'ID de la catégorie depuis l'URL
@@ -43,7 +44,16 @@ const CategoryById = () => {
 
     return (
         <Container className="mt-4">
-            <h1 className="text-center mb-4">Formations pour la Catégorie</h1>
+            <Helmet>
+        <meta charSet="utf-8" />
+        <title>NikoDemus</title>
+        <meta
+          name="description"
+          content="Catégorie"
+        />
+        <link rel="canonical" href={`http://localhost:5173/category/${id}`} />
+      </Helmet>
+            <h1 className="text-center mb-4">Nos Formations</h1>
             <Row>
                 {formations.map((formation) => (
                     <Col key={formation.id} md={4} className="mb-4">
