@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 const ManageFormation = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const [data, setData] = useState([]); // constante data (tableau vide)
     const navigate = useNavigate(); // Hook pour naviguer entre les pages
 
     useEffect(() => {
-        axios.get('http://localhost:3000/formation') // recuperation sur BDD
+        axios.get(`${apiUrl}/formation`) // recuperation sur BDD
             .then(res => {
                 setData(res.data); // màj de data avec les données de l'api
                 console.log(res.data);
@@ -23,7 +24,7 @@ const ManageFormation = () => {
         console.log('ca supprime la');
         console.log(id);
 
-        axios.delete(`http://localhost:3000/formation/delete/${id}`)
+        axios.delete(`${apiUrl}/formation/delete/${id}`)
 
 
             .then(res => {

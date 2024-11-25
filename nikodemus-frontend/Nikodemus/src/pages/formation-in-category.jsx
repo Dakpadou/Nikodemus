@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Card, Button, Row, Col, Spinner } from "react-bootstrap";
 
 const FormationsParCategorie = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [formations, setFormations] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(1);
@@ -23,7 +24,7 @@ const FormationsParCategorie = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/category/shortcategory")
+      .get(`${apiUrl}/category/shortcategory`)
       .then((response) => {
         setCategories(response.data);
         setIsLoading(false);
@@ -35,7 +36,7 @@ const FormationsParCategorie = () => {
 
     setIsLoadingFormations(true);
     axios
-      .get(`http://localhost:3000/formation/incategory/${selectedCategory}`)
+      .get(`${apiUrl}/formation/incategory/${selectedCategory}`)
       .then((response) => {
         console.log(response.data);
         
@@ -90,7 +91,8 @@ const FormationsParCategorie = () => {
                     <Card>
                       <Card.Img
                         variant="top"
-                        src={`http://localhost:3000/uploads/${formation.image}`}
+                        src={`${import.meta.env.VITE_API_URL}/uploads/${formation.image}`}
+
                         alt={`Image de ${formation.Titre}`}
                         style={{ height: "150px", objectFit: "cover" }}
                       />

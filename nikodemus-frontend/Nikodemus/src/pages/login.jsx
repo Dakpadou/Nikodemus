@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const Login = () => {
-    const [email, setEmail] = useState("");
+        const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -16,7 +16,7 @@ const Login = () => {
         };
 
         try {
-            const response = await axios.post(`http://localhost:3000/login`, data, {
+            const response = await axios.post(`${apiUrl}/login`, data, {
                 headers: {
                     "Content-Type": "application/json",
                 },

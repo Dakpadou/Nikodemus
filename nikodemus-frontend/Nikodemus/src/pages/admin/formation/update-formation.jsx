@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Editor } from '@tinymce/tinymce-react';
 
 const UpdateFormation = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const { id } = useParams(); // Récupération de l'id dans l'url
   const [titre, setTitre] = useState('');
   const [presentation, setPresentation] = useState('');
@@ -15,7 +16,7 @@ const UpdateFormation = () => {
 
   // Charger les informations a pa--rtir de l'id formation
   useEffect(() => {
-    axios.get(`http://localhost:3000/formation/${id}`)
+    axios.get(`${apiUrl}/formation/${id}`)
       .then(res => {
         const formation = res.data;
         setTitre(formation.data.Titre);
@@ -40,7 +41,7 @@ const UpdateFormation = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`http://localhost:3000/formation/update/${id}`, {
+      const response = await axios.put(`${apiUrl}/formation/update/${id}`, {
         titre,
         presentation,
         prix

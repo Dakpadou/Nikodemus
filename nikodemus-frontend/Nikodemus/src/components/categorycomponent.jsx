@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const Category = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const [data, setData] = useState([]); // constante data (tableau vide)
     useEffect(() => {
-        axios.get('http://localhost:3000/category') // recuperation sur BDD
+        axios.get(`${apiUrl}/category`) // recuperation sur BDD
             .then(res => {
                 setData(res.data); // màj de data avec les données de l'api
                 console.log(res.data);

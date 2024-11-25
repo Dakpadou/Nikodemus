@@ -77,40 +77,40 @@ router.post('/add', async (req, res) => {
         console.log('Données reçues:', req.body);
 
         try {
-            
             const [result] = await config.execute(sql, [name, presentation]);
+            const newCategoryId = result.insertId;
 
-            
-            console.log('categorie ajoutée avec succès:', result);
+            // Récupérer la nouvelle catégorie pour le tableau
+            const [rows] = await config.execute('SELECT * FROM category WHERE id = ?', [newCategoryId]);
 
-            // Réponse statut 201 après succès de l'insertion
-            return res.status(201).json({
-                message: 'categorie ajoutée avec succès',
-                success: true,
-                data: { name, presentation }
-            });
-
+            if (rows.length > 0) {
+                console.log('Categorie ajoutée avec succès:', rows[0]);
+                return res.status(201).json(rows[0]); // Retourner la nouvelle catégorie
+            } else {
+                return res.status(500).json({
+                    message: 'Erreur lors de la récupération de la nouvelle catégorie',
+                    success: false,
+                });
+            }
         } catch (err) {
-            
             console.error('Erreur lors de l\'insertion:', err);
             return res.status(500).json({
                 message: 'Erreur interne du serveur',
-                success: false
+                success: false,
             });
         }
-
     } else {
-        
         return res.status(400).json({
             message: 'Données manquantes',
-            success: false
+            success: false,
         });
     }
 });
 
+
 // Route modifier les categories
 
-router.put('update/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
     const id = req.params.id; 
     const { name, presentation, image } = req.body; 
 

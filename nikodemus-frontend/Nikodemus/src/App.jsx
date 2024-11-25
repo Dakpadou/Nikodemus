@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
 import './App.css';
 import Home from './pages/Home';
 import Formation from './pages/formation';
@@ -12,10 +10,14 @@ import FormationById from './pages/formation-by-id';
 import UpdateFormation from './pages/admin/formation/update-formation';
 import AdminCategory from './pages/admin/category/admin-category';
 import ProtectedRoute from "./components/ProtectedRoute";
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-
+import Basket from './pages/basket';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 import Login from './pages/login'
+import UserRegister from './pages/user/SubUser';
+import AdminRegister from './pages/admin/SubAdmin';
+import MyFormations from './components/myformations';
+
 
 
 
@@ -52,6 +54,12 @@ function App() {
           <Route path="/formations-par-categorie" element={<FormationsParCategorie />} />
           <Route path="/formation/:id" element={<FormationById />} />
           <Route path="/update/:id" element={<UpdateFormation />} />
+          <Route path="/panier" element={<Basket />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route path="/register-user" element={<UserRegister />} />
+          <Route path="/register-admin" element={<AdminRegister />} />
+          <Route path="/myformations" element={<MyFormations />} />
         </Routes>
       </div>
     </>

@@ -1,175 +1,225 @@
 import React, { useState, useEffect } from "react";
+import { Modal, Button, Form, Table, Alert } from "react-bootstrap";
 import axios from "axios";
-import { Link } from "react-router-dom";
 
 const CategoryManager = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState({
     name: "",
     presentation: "",
-    image: ""
+    image: "",
   });
   const [editingCategory, setEditingCategory] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // récuperer les categories
+  // Charger les catégories depuis l'API
+  const fetchCategories = () => {
+    axios.get(`${apiUrl}/category`).then((response) => {
+      setCategories(response.data);
+    });
+  };
+
   useEffect(() => {
     fetchCategories();
   }, []);
 
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000/category");
-      setCategories(response.data);
-      console.log(response.data);
-      
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
-  const handleCreateCategory = async () => {
-    try {
-      await axios.post("http://localhost:3000/category/add", newCategory);
-      fetchCategories();
-      setNewCategory({ name: "", presentation: "", image: "" });
-    } catch (error) {
-      console.error("Error creating category:", error);
-    }
-  };
-
-  const handleDeleteCategory = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3000/category/delete/${id}`);
-      fetchCategories();
-    } catch (error) {
-      console.error("Error deleting category:", error);
-    }
-  };
-
-  const handleEditCategory = (category) => {
-    setEditingCategory({ ...category });
+  const handleShowModal = (category = null) => {
+    setEditingCategory(category);
+    setErrorMessage("");
     setShowModal(true);
   };
 
-  const handleUpdateCategory = async () => {
-    try {
-      if (!editingCategory?.id) {
-        console.error("Category ID is missing"); // Log si l'ID est absent
-        return;
-      }
-  
-      await axios.put(`/api/categories/${editingCategory.id}`, {
-        name: editingCategory.name,
-        presentation: editingCategory.presentation,
-        image: editingCategory.image,
-      });
-  
-      fetchCategories(); // màj  liste catégories
-      setShowModal(false); 
-      setEditingCategory(null); 
-    } catch (error) {
-      console.error("Error updating category:", error);
+  const handleCloseModal = () => {
+    setEditingCategory(null);
+    setErrorMessage("");
+    setShowModal(false);
+  };
+
+  const handleSave = () => {
+    const fieldsToValidate = editingCategory || newCategory;
+    if (
+      !fieldsToValidate.name ||
+      !fieldsToValidate.presentation ||
+      !fieldsToValidate.image
+    ) {
+      setErrorMessage("Tous les champs doivent être remplis.");
+      return;
+    }
+
+    if (editingCategory) {
+      axios
+        .put(`${apiUrl}/category/update/${editingCategory.id}`, editingCategory)
+        .then(() => {
+          setCategories((prev) =>
+            prev.map((cat) =>
+              cat.id === editingCategory.id ? editingCategory : cat
+            )
+          );
+          handleCloseModal();
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la mise à jour :", error);
+        });
+    } else {
+      axios
+        .post(`${apiUrl}/category/add`, newCategory)
+        .then((response) => {
+          setCategories((prev) => [...prev, response.data]);
+          setNewCategory({ name: "", presentation: "", image: "" });
+          handleCloseModal();
+        })
+        .catch((error) => {
+          console.error("Erreur lors de l'ajout :", error);
+        });
     }
   };
-  
+
+  const handleDelete = (categoryId) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette catégorie ?")) {
+      axios
+        .delete(`${apiUrl}/category/delete/${categoryId}`)
+        .then(() => {
+          setCategories((prev) =>
+            prev.filter((category) => category.id !== categoryId)
+          );
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la suppression :", error);
+        });
+    }
+  };
 
   return (
-    <div> 
-      <div>
-        <h2>Créer une nouvelle catégorie</h2>
-        <input
-          type="text"
-          placeholder="Name"
-          value={newCategory.name}
-          onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-        />
-        <input
-          type="text"
-          placeholder="Presentation"
-          value={newCategory.presentation}
-          onChange={(e) =>
-            setNewCategory({ ...newCategory, presentation: e.target.value })
-          }
-        />
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={newCategory.image}
-          onChange={(e) => setNewCategory({ ...newCategory, image: e.target.value })}
-        />
-        <button onClick={handleCreateCategory}>Create</button>
-      </div>
-
-      {/* Category Table */}
-      <table border="1">
+    <div>
+      <Button variant="primary" onClick={() => handleShowModal()}>
+        Ajouter une catégorie
+      </Button>
+      <Table striped bordered hover className="mt-4">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Presentation</th>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Présentation</th>
             <th>Image</th>
-            <th>Action</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {categories.map((category) => (
+          {categories.map((category, index) => (
             <tr key={category.id}>
-              <td>
-                <Link to={`/category/${category.id}`}>{category.name}</Link>
-              </td>
+              <td>{index + 1}</td>
+              <td>{category.name}</td>
               <td>{category.presentation}</td>
               <td>
-                <img src={category.image} alt={category.name} width="50" />
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  style={{ width: "50px" }}
+                />
               </td>
               <td>
-                <button onClick={() => handleEditCategory(category)}>Edit</button>
-                <button onClick={() => handleDeleteCategory(category.id)}>
-                  Delete
-                </button>
+                <Button
+                  variant="warning"
+                  className="me-2"
+                  onClick={() => handleShowModal(category)}
+                >
+                  Modifier
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => handleDelete(category.id)}
+                >
+                  Supprimer
+                </Button>
               </td>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
 
-      {/* Edit Modal */}
-      {showModal && (
-        <div className="modal">
-          <h2>Edit Category</h2>
-          <label>Nom:</label>
-          <input
-            type="text"
-            placeholder="Name"
-            value={editingCategory.name}
-            onChange={(e) =>
-              setEditingCategory({ ...editingCategory, name: e.target.value })
-            }
-          />
-          <label>Présentation:</label>
-          <input
-            type="text"
-            placeholder="Presentation"
-            value={editingCategory.presentation}
-            onChange={(e) =>
-              setEditingCategory({
-                ...editingCategory,
-                presentation: e.target.value
-              })
-            }
-          />
-          <label>URL de l'image:</label>
-          <input
-            type="text"
-            placeholder="Image URL"
-            value={editingCategory.image}
-            onChange={(e) =>
-              setEditingCategory({ ...editingCategory, image: e.target.value })
-            }
-          />
-          <button onClick={handleUpdateCategory}>Save</button>
-          <button onClick={() => setShowModal(false)}>Cancel</button>
-        </div>
-      )}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {editingCategory ? "Modifier la catégorie" : "Nouvelle catégorie"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {errorMessage && (
+            <Alert variant="danger" onClose={() => setErrorMessage("")} dismissible>
+              {errorMessage}
+            </Alert>
+          )}
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Nom</Form.Label>
+              <Form.Control
+                type="text"
+                value={editingCategory?.name || newCategory.name}
+                onChange={(e) => {
+                  if (editingCategory) {
+                    setEditingCategory({
+                      ...editingCategory,
+                      name: e.target.value,
+                    });
+                  } else {
+                    setNewCategory({ ...newCategory, name: e.target.value });
+                  }
+                }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Présentation</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={
+                  editingCategory?.presentation || newCategory.presentation
+                }
+                onChange={(e) => {
+                  if (editingCategory) {
+                    setEditingCategory({
+                      ...editingCategory,
+                      presentation: e.target.value,
+                    });
+                  } else {
+                    setNewCategory({
+                      ...newCategory,
+                      presentation: e.target.value,
+                    });
+                  }
+                }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Image (URL)</Form.Label>
+              <Form.Control
+                type="text"
+                value={editingCategory?.image || newCategory.image}
+                onChange={(e) => {
+                  if (editingCategory) {
+                    setEditingCategory({
+                      ...editingCategory,
+                      image: e.target.value,
+                    });
+                  } else {
+                    setNewCategory({ ...newCategory, image: e.target.value });
+                  }
+                }}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Annuler
+          </Button>
+          <Button variant="primary" onClick={handleSave}>
+            Enregistrer
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
 
     const formationId = req.params.id;
-    const sql = 'SELECT id, Titre, presentation, prix FROM FORMATION WHERE id=?';
+    const sql = 'SELECT id, Titre, presentation, prix, image FROM FORMATION WHERE id=?';
 
     try {
         const [rows, fields] = await config.query(sql, [formationId]); // execution de la requete sql
@@ -107,8 +107,10 @@ const upload = multer({
 // route page ajout formation
 
 router.post('/add', upload.single('image'), async (req, res) => {
-    const { titre, presentation, prix } = req.body;
-    const sqlFormation = 'INSERT INTO formation (titre, presentation, prix, image) VALUES (?, ?, ?, ?)';
+    const { titre, presentation, prix , content } = req.body;
+    console.log(req.body);
+
+    const sqlFormation = 'INSERT INTO formation (titre, presentation, prix, image , content) VALUES (?, ?, ?, ?, ?)';
     const sqlFormacat = 'INSERT INTO formacat (formation_id, category_id) VALUES (?, ?)';
 
     try {
@@ -133,7 +135,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
 
         // Insère les données dans la table formation
         const image = `resized-${originalFile}`;
-        const [resultFormation] = await config.execute(sqlFormation, [titre, presentation, prix, image]);
+        const [resultFormation] = await config.execute(sqlFormation, [titre, presentation, prix, image , content]);
 
         // Récupère l'ID de la formation insérée
         const formationId = resultFormation.insertId;
