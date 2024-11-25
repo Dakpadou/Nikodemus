@@ -4,6 +4,7 @@ import { Container, Row, Col, Button, Card } from "react-bootstrap"; // Import d
 
 const Basket = () => {
   const [cartItems, setCartItems] = useState([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // Fonction pour récupérer les articles du panier depuis localStorage
   const getCartItems = () => {
@@ -60,7 +61,7 @@ const Basket = () => {
                 <Col key={item.id} sm={12} md={6} lg={4}>
                   <Card className="mb-4">
                     {/* Utilisation de l'URL locale pour l'image */}
-                    <Card.Img variant="top" src={`http://localhost:3000/uploads/${item.image}`} alt={item.name} />
+                    <Card.Img variant="top" src={`${apiUrl}/uploads/${item.image}`} alt={item.name} />
                     <Card.Body>
                       <Card.Title>{item.name}</Card.Title>
                       <Card.Text>

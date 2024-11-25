@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet";
 import { useAuth } from "../hooks/useAuth";
 
 const FormationById = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const { user, loading } = useAuth(); // Vérifie l'utilisateur connecté
   const [formation, setFormation] = useState(null);
   const [error, setError] = useState(null);
@@ -15,7 +16,7 @@ const FormationById = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/formation/${id}`)
+      .get(`${apiUrl}/formation/${id}`)
       .then((res) => {
         setFormation(res.data);
       })
@@ -28,7 +29,7 @@ const FormationById = () => {
   useEffect(() => {
     if (!loading && user) {
       axios
-        .get(`http://localhost:3000/user/ordersbyuser/${user.id}`) // Route pour vérifier les commandes
+        .get(`${apiUrl}/user/ordersbyuser/${user.id}`) // Route pour vérifier les commandes
         .then((res) => {
           console.log(res.data.data);
           if (res.data.data.includes(parseInt(id))) {
@@ -85,7 +86,7 @@ const FormationById = () => {
           <Card>
             <Card.Img
               variant="top"
-              src={`http://localhost:3000/uploads/${formation.data.image}`}
+              src={`${apiUrl}/uploads/${formation.data.image}`}
               alt={formation.data.Titre}
             />
             <Card.Body>

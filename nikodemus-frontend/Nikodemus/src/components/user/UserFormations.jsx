@@ -4,6 +4,7 @@ import { Card, Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 
 const UserFormations = ({ userId }) => {
+    
     // Récupération du contexte utilisateur via le hook useAuth
     const { user } = useAuth();
 
@@ -59,7 +60,7 @@ const UserFormations = ({ userId }) => {
                                 {formation.image && (
                                     <Card.Img
                                         variant="top"
-                                        src={`http://localhost:3000/uploads/${formation.image}`}
+                                        src={`${apiUrl}/uploads/${formation.image}`}
                                         alt={formation.Titre}
                                         style={{ height: '200px', objectFit: 'cover' }}
                                     />

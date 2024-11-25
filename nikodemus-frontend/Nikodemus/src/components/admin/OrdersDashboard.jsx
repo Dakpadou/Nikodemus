@@ -17,6 +17,7 @@ import CategoryManager from './managecategory';
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend);
 
 const MonthlyDashboard = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [loading, setLoading] = useState(true);
   const [ordersPerMonth, setOrdersPerMonth] = useState([]);
   const [revenuePerMonth, setRevenuePerMonth] = useState([]);
@@ -24,11 +25,11 @@ const MonthlyDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const ordersResponse = await fetch('http://localhost:3000/admin/orders-per-month');
+        const ordersResponse = await fetch(`${apiUrl}/admin/orders-per-month`);
         const ordersData = await ordersResponse.json();
         setOrdersPerMonth(ordersData);
 
-        const revenueResponse = await fetch('http://localhost:3000/admin/revenue-per-month');
+        const revenueResponse = await fetch(`${apiUrl}/admin/revenue-per-month`);
         const revenueData = await revenueResponse.json();
         setRevenuePerMonth(revenueData);
       } catch (error) {

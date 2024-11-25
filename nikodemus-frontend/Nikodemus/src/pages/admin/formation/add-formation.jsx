@@ -4,7 +4,9 @@ import { Form, Button, Container, Row, Col, Card, Alert } from "react-bootstrap"
 import { Editor } from "@tinymce/tinymce-react";
 import { useAuth } from '../../../hooks/useAuth';
 
+
 const AddFormation = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const { user, loading } = useAuth(); // Inclut l'état `loading`
     const [data, setData] = useState({
         titre: "",
@@ -65,7 +67,7 @@ const AddFormation = () => {
         formData.append("image", data.image);
         formData.append("author", data.author);
 
-        axios.post("http://localhost:3000/formation/add", formData, {
+        axios.post(`${apiUrl}/formation/add`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }

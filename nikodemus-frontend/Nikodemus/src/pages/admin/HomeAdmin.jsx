@@ -30,6 +30,7 @@ ChartJS.register(
 );
 
 const AdminDashboard = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [kpiData, setKpiData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formationStats, setFormationStats] = useState({
@@ -49,11 +50,11 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const kpiResponse = await fetch("http://localhost:3000/admin/kpi");
+        const kpiResponse = await fetch(`${apiUrl}/admin/kpi`);
         const kpiJson = await kpiResponse.json();
         setKpiData(kpiJson);
 
-        const statsResponse = await fetch("http://localhost:3000/admin/stats");
+        const statsResponse = await fetch(`${apiUrl}/admin/stats`);
         const statsJson = await statsResponse.json();
         setFormationStats(statsJson);
       } catch (error) {
