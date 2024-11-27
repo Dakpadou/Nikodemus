@@ -172,41 +172,42 @@ router.get('/:id', async (req, res) => {
 
 // route ajout categorie
 
-router.use(bodyParser.json());
-
-router.post('/add', async (req, res) => {
+router.post('/add', upload.single('image'), async (req, res) => {
     const { name, presentation } = req.body;
-    const sql = 'INSERT INTO category (name, presentation) VALUES (?, ?)';
+    const image = req.file ? req.file.filename : null; // Vérifiez si une image a été uploadée
+    const sql = `
+        INSERT INTO category (name, presentation${image ? ', image' : ''}) 
+        VALUES (?, ?${image ? ', ?' : ''})
+    `;
 
-    if (Object.keys(req.body).length !== 0) {
-        console.log('Données reçues:', req.body);
+    if (!name || !presentation) {
+        return res.status(400).json({
+            message: 'Les champs name et presentation sont requis',
+            success: false,
+        });
+    }
 
-        try {
-            const [result] = await config.execute(sql, [name, presentation]);
-            const newCategoryId = result.insertId;
+    try {
+        const params = image ? [name, presentation, image] : [name, presentation];
+        const [result] = await config.execute(sql, params);
+        const newCategoryId = result.insertId;
 
-            // Récupérer la nouvelle catégorie pour le tableau
-            const [rows] = await config.execute('SELECT * FROM category WHERE id = ?', [newCategoryId]);
+        // Récupérer la nouvelle catégorie pour le tableau
+        const [rows] = await config.execute('SELECT * FROM category WHERE id = ?', [newCategoryId]);
 
-            if (rows.length > 0) {
-                console.log('Categorie ajoutée avec succès:', rows[0]);
-                return res.status(201).json(rows[0]); // Retourner la nouvelle catégorie
-            } else {
-                return res.status(500).json({
-                    message: 'Erreur lors de la récupération de la nouvelle catégorie',
-                    success: false,
-                });
-            }
-        } catch (err) {
-            console.error('Erreur lors de l\'insertion:', err);
+        if (rows.length > 0) {
+            console.log('Catégorie ajoutée avec succès:', rows[0]);
+            return res.status(201).json(rows[0]); // Retourner la nouvelle catégorie
+        } else {
             return res.status(500).json({
-                message: 'Erreur interne du serveur',
+                message: 'Erreur lors de la récupération de la nouvelle catégorie',
                 success: false,
             });
         }
-    } else {
-        return res.status(400).json({
-            message: 'Données manquantes',
+    } catch (err) {
+        console.error('Erreur lors de l\'insertion:', err);
+        return res.status(500).json({
+            message: 'Erreur interne du serveur',
             success: false,
         });
     }
