@@ -1,38 +1,49 @@
-import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const apiUrl = import.meta.env.VITE_API_URL;
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const apiUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
-        const fetchUser = async () => {
+        const verifyAuth = async () => {
             try {
-                const response = await axios.get(`${apiUrl}/auth/me`, {
-                    withCredentials: true,
-                });
-                setUser(response.data.user);
+                const response = await axios.get(`${apiUrl}/auth/me`, { withCredentials: true });
+                setUser(response.data.user); // Met à jour l'utilisateur si connecté
             } catch (error) {
+                console.error("Erreur d'authentification :", error);
                 setUser(null); // Aucun utilisateur connecté
             } finally {
-                setLoading(false); // Fin du chargement
+                setLoading(false);
             }
         };
-
-        fetchUser();
+        verifyAuth();
     }, []);
 
     const logout = async () => {
-        await axios.post(`${apiUrl}/auth/logout`, {}, { withCredentials: true });
-        setUser(null);
+        try {
+            await axios.post(`${apiUrl}/auth/logout`, {}, { withCredentials: true });
+            setUser(null); // Déconnecte l'utilisateur
+            window.location.href = "/login"; // Redirige vers la page de connexion
+        } catch (error) {
+            console.error("Erreur lors de la déconnexion :", error);
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, logout }}>
+        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
             {children}
         </AuthContext.Provider>
     );
+};
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
 };

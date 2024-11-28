@@ -89,7 +89,7 @@ const AddFormationModal = ({ show, handleClose }) => {
     };
 
     return (
-        <Modal show={show} onHide={handleClose} centered>
+        <Modal size="xl" show={show} onHide={handleClose} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Ajouter une Formation</Modal.Title>
             </Modal.Header>
@@ -145,7 +145,7 @@ const AddFormationModal = ({ show, handleClose }) => {
                                     'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
                                 ],
                                 toolbar: 'undo redo | blocks | bold italic forecolor | ' +
-                                    'alignleft aligncenter alignright alignjustify | ' +
+                                    'alignleft aligncenter alignright alignjustify | link image media table mergetags | ' +
                                     'bullist numlist outdent indent | removeformat | help',
                                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                             }}

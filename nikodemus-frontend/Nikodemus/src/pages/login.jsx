@@ -1,46 +1,37 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { Form, Button, Container, Alert } from "react-bootstrap";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
-    const navigate = useNavigate(); // Hook pour naviguer entre les pages
-    const apiUrl = import.meta.env.VITE_API_URL;
+    const navigate = useNavigate();
+    const { setUser } = useAuth(); // Utilisation du contexte pour mettre à jour l'utilisateur
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const data = {
-            email,
-            password,
-        };
-
         try {
-            const response = await axios.post(`${apiUrl}/login`, data, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                withCredentials: true, // envoi du cookie de session
-            });
-            console.log(response.data);
-            setMessage("Connexion réussie !");
-            
-            // Redirige vers la page d'accueil après 2 secondes
-            setTimeout(() => {
-                navigate("/");
-            }, 2000);
-        } catch (error) {
-            console.error("Erreur lors de la connexion:", error);
-            if (error.response) {
-                setMessage(error.response.data.message || "Erreur lors de la connexion.");
-            } else if (error.request) {
-                setMessage("Aucune réponse du serveur.");
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, {
+                email,
+                password,
+            }, { withCredentials: true });
+
+            if (response.data && response.data.user) {
+                setUser(response.data.user); // Met à jour le contexte utilisateur
+                setMessage("Connexion réussie !");
+                navigate("/"); // Redirige après connexion
             } else {
-                setMessage("Erreur: " + error.message);
+                setMessage("Aucune donnée utilisateur reçue.");
             }
+        } catch (error) {
+            console.error("Erreur lors de la connexion :", error);
+            setMessage(
+                error.response?.data?.message || "Une erreur est survenue lors de la connexion."
+            );
         }
     };
 
@@ -72,8 +63,6 @@ const Login = () => {
                     </Button>
                 </Form>
                 {message && <Alert className="mt-3" variant="info">{message}</Alert>}
-
-                <Link to='/register-user'>Créer un compte</Link>
             </div>
         </Container>
     );

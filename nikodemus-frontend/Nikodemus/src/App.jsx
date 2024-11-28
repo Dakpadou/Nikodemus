@@ -6,7 +6,6 @@ import FormationsParCategorie from './pages/formation-in-category';
 import { Routes, Route } from "react-router-dom";
 import FormationById from './pages/formation-by-id';
 import UpdateFormation from './pages/admin/formation/update-formation';
-import AdminCategory from './pages/admin/category/admin-category';
 import ProtectedRoute from "./components/ProtectedRoute";
 import Basket from './pages/basket';
 import Checkout from './pages/Checkout';
@@ -34,14 +33,6 @@ function App() {
     <>
       <div className="App">
         <Routes>
-          <Route
-            path="/admin/category"
-            element={
-              <ProtectedRoute allowedRoles={[1]}>
-                <AdminCategory />
-              </ProtectedRoute>
-            }
-          />
 
           <Route
             path="/user"
